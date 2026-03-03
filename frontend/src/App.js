@@ -179,73 +179,125 @@ const categoryChartData = categorySummary
     }
   : null;
 
-  return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
-      <h1>Fintech Dashboard</h1>
+const chartOptions = {
+  plugins: {
+    legend: {
+      labels: {
+        color: "#9CA3AF" // gray-400
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: { color: "#9CA3AF" },
+      grid: { color: "rgba(255,255,255,0.05)" }
+    },
+    y: {
+      ticks: { color: "#9CA3AF" },
+      grid: { color: "rgba(255,255,255,0.05)" }
+    }
+  }
+};
 
-      <h2>Select User</h2>
-      <select onChange={(e) => setSelectedUser(e.target.value)}>
-        <option value="">-- Choose User --</option>
-        {users.map(user => (
-          <option key={user.user_id} value={user.user_id}>
-            {user.email}
-          </option>
-        ))}
-      </select>
+return (
+  <div className="min-h-screen bg-gray-950 text-gray-100 flex">
+
+    {/* Sidebar */}
+    <div className="w-64 bg-gray-900 border-r border-gray-800 p-6">
+      <h2 className="text-xl font-bold mb-8">Fintech</h2>
+
+      <nav className="space-y-4 text-gray-400">
+        <div className="hover:text-white cursor-pointer">Dashboard</div>
+        <div className="hover:text-white cursor-pointer">Accounts</div>
+        <div className="hover:text-white cursor-pointer">Analytics</div>
+        <div className="hover:text-white cursor-pointer">Settings</div>
+      </nav>
+    </div>
+
+    {/* Main Content */}
+    <div className="flex-1 p-10 overflow-y-auto">
+
+      <h1 className="text-4xl font-bold mb-8">
+        Fintech Dashboard
+      </h1>
+
+      <div className="mb-8">
+        <label className="block text-sm text-gray-400 mb-2">
+          Select User
+        </label>
+        <select
+          onChange={(e) => setSelectedUser(e.target.value)}
+          className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-64"
+        >
+          <option value="">-- Choose User --</option>
+          {users.map(user => (
+            <option key={user.user_id} value={user.user_id}>
+              {user.email}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {selectedUser && (
-        <>
-        <div style={{
-          marginTop: "30px",
-          padding: "20px",
-          backgroundColor: "#f2f2f2",
-          borderRadius: "8px",
-          maxWidth: "400px"
-        }}>
-          <h2>Financial Summary</h2>
-          <p><strong>Total Income:</strong> ${summary?.total_income}</p>
-          <p><strong>Total Expenses:</strong> ${summary?.total_expenses}</p>
-          <p><strong>Net Cashflow:</strong> ${summary?.net_cashflow}</p>
-        </div>
+        <div className="space-y-10">
 
-        {chartData && (
-          <div style={{ maxWidth: "500px", marginTop: "20px" }}>
-            <Bar data={chartData} />
+          {/* Financial Summary */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+           p-6 rounded-2xl shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Financial Summary</h2>
+            <div className="space-y-2">
+              <p>Total Income: <span className="text-green-400 font-medium">${summary?.total_income}</span></p>
+              <p>Total Expenses: <span className="text-red-400 font-medium">${summary?.total_expenses}</span></p>
+              <p>Net Cashflow: <span className="text-blue-400 font-medium">${summary?.net_cashflow}</span></p>
+            </div>
           </div>
-        )}
 
-        {categoryChartData && (
-          <div style={{ maxWidth: "500px", marginTop: "40px" }}>
-            <h3>Category Breakdown</h3>
-            <Bar data={categoryChartData} />
+          {/* Charts */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {chartData && (
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+               p-6 rounded-2xl shadow-lg">
+                <h3 className="mb-4">Cash Flow</h3>
+               <Bar data={chartData} options={chartOptions} />
+              </div>
+            )}
+
+            {categoryChartData && (
+              <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+               p-6 rounded-2xl shadow-lg">
+                <h3 className="mb-4">Category Breakdown</h3>
+                <Bar data={categoryChartData} options={chartOptions} />
+              </div>
+            )}
           </div>
-        )}
-        
-        <h2 style={{ marginTop: "30px" }}>Accounts</h2>
-        {accounts.map(acc => (
-          <div
-            key={acc.account_id}
-            style={{
-              padding: "10px",
-              backgroundColor: "#1f1f1f",
-              borderRadius: "6px",
-              marginBottom: "10px",
-              maxWidth: "400px"
-            }}
-          >
-            <strong>{acc.account_type}</strong> ({acc.currency})
-            <div>Balance: ${acc.balance}</div>
+
+          {/* Accounts */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+           p-6 rounded-2xl shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Accounts</h2>
+            {accounts.map(acc => (
+              <div key={acc.account_id} className="mb-3">
+                <p className="font-medium">
+                  {acc.account_type} ({acc.currency})
+                </p>
+                <p className="text-gray-400">
+                  Balance: ${acc.balance}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
 
-          <h2 style={{ marginTop: "30px" }}>Create Transaction</h2>
+          {/* Create Transaction */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+           p-6 rounded-2xl shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Create Transaction</h2>
 
-          <form onSubmit={handleSubmit}>
-            <div>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <select
                 required
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
+                className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
               >
                 <option value="">-- Select Account --</option>
                 {accounts.map(acc => (
@@ -254,60 +306,70 @@ const categoryChartData = categorySummary
                   </option>
                 ))}
               </select>
-            </div>
 
-            <div>
               <input
                 type="number"
                 placeholder="Amount"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
               />
-            </div>
 
-            <div>
               <input
                 type="text"
                 placeholder="Category"
                 required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
               />
-            </div>
 
-            <div>
               <input
                 type="text"
                 placeholder="Description"
                 required
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
               />
-            </div>
-
-            <button type="submit">Add Transaction</button>
-          </form>
-
-          <h2 style={{ marginTop: "30px" }}>Transactions</h2>
-
-          {transactions.map(tx => (
-            <div key={tx.transaction_id} style={{ marginBottom: "10px" }}>
-              <strong>{tx.category}</strong> — ${tx.amount}
-              <div>{tx.description}</div>
 
               <button
-                style={{ marginTop: "5px" }}
-                onClick={() => handleDelete(tx.transaction_id)}
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 transition px-6 py-2 rounded-lg font-medium"
               >
-                Delete
+                Add Transaction
               </button>
-            </div>
-          ))}
-        </>
+            </form>
+          </div>
+
+          {/* Transactions */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 backdrop-blur
+           p-6 rounded-2xl shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Transactions</h2>
+
+            {transactions.map(tx => (
+              <div key={tx.transaction_id} className="mb-4 border-b border-gray-800 pb-4">
+                <p>
+                  <strong>{tx.category}</strong> — ${tx.amount}
+                </p>
+                <p className="text-gray-400">{tx.description}</p>
+
+                <button
+                  onClick={() => handleDelete(tx.transaction_id)}
+                  className="mt-2 text-red-400 hover:text-red-300 text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+
+        </div>
       )}
     </div>
-  );
+  </div>
+);
 }
 
 export default App;

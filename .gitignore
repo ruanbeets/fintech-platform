@@ -37,3 +37,7 @@ alembic/versions/*.pyc
 # React
 frontend/node_modules/
 frontend/build/
+
+# Tailwind
+frontend/.parcel-cache/
+frontend/.cache/
