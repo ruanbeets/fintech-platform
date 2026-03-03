@@ -71,6 +71,26 @@ function App() {
       .catch(err => console.error(err));
   };
 
+  const handleDelete = (transactionId) => {
+  fetch(`http://127.0.0.1:9000/transactions/${transactionId}`, {
+    method: "DELETE",
+  })
+    .then(() => {
+      // Remove from UI
+      setTransactions(prev =>
+        prev.filter(tx => tx.transaction_id !== transactionId)
+      );
+
+      // Refresh summary
+      return fetch(
+        `http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`
+      );
+    })
+    .then(res => res.json())
+    .then(data => setSummary(data))
+    .catch(err => console.error(err));
+};
+
   return (
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
       <h1>Fintech Dashboard</h1>
@@ -99,6 +119,24 @@ function App() {
           <p><strong>Total Expenses:</strong> ${summary?.total_expenses}</p>
           <p><strong>Net Cashflow:</strong> ${summary?.net_cashflow}</p>
         </div>
+
+        <h2 style={{ marginTop: "30px" }}>Accounts</h2>
+
+        {accounts.map(acc => (
+          <div
+            key={acc.account_id}
+            style={{
+              padding: "10px",
+              backgroundColor: "#1f1f1f",
+              borderRadius: "6px",
+              marginBottom: "10px",
+              maxWidth: "400px"
+            }}
+          >
+            <strong>{acc.account_type}</strong> ({acc.currency})
+            <div>Balance: ${acc.balance}</div>
+          </div>
+        ))}
 
           <h2 style={{ marginTop: "30px" }}>Create Transaction</h2>
 
@@ -157,6 +195,13 @@ function App() {
             <div key={tx.transaction_id} style={{ marginBottom: "10px" }}>
               <strong>{tx.category}</strong> — ${tx.amount}
               <div>{tx.description}</div>
+
+              <button
+                style={{ marginTop: "5px" }}
+                onClick={() => handleDelete(tx.transaction_id)}
+              >
+                Delete
+              </button>
             </div>
           ))}
         </>

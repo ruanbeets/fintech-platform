@@ -41,7 +41,7 @@ def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)
     ).first()
 
     # Update account balance
-    account.balance += payload.amount
+    account.balance += float(payload.amount)
 
     # Save transaction
     db.add(transaction)
@@ -49,3 +49,24 @@ def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)
     db.refresh(transaction)
 
     return transaction
+
+@router.delete("/{transaction_id}")
+def delete_transaction(transaction_id: uuid.UUID, db: Session = Depends(get_db)):
+    transaction = db.query(Transaction).filter(
+        Transaction.transaction_id == transaction_id
+    ).first()
+
+    if not transaction:
+        return {"error": "Transaction not found"}
+
+    # Reverse balance effect
+    account = db.query(Account).filter(
+        Account.account_id == transaction.account_id
+    ).first()
+
+    account.balance -= float(transaction.amount)
+
+    db.delete(transaction)
+    db.commit()
+
+    return {"message": "Transaction deleted"}
