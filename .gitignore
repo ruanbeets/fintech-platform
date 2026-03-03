@@ -3,11 +3,12 @@ venv/
 .venv/
 
 # Python
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.sqlite3
+.env
 
 # Environment files
 .env
@@ -32,3 +33,7 @@ postgres_data/
 
 # Alembic (future)
 alembic/versions/*.pyc
+
+# React
+frontend/node_modules/
+frontend/build/
