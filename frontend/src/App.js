@@ -8,6 +8,16 @@ import {
   Legend
 } from "chart.js";
 
+import {
+  getUsers,
+  getAccounts,
+  getTransactions,
+  getSummary,
+  getCategorySummary,
+  createTransaction,
+  deleteTransaction
+} from "./services/api";
+
 import Sidebar from "./components/Sidebar";
 import UserSelector from "./components/UserSelector";
 import SummaryCard from "./components/SummaryCard";
@@ -38,99 +48,91 @@ function App() {
   const [selectedAccount, setSelectedAccount] = useState("");
 
   // =============================
-  // Fetch Users (once)
-  // =============================
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:9000/users");
-        const data = await res.json();
-        setUsers(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  // =============================
-  // Fetch All User Data
-  // =============================
-  const fetchUserData = async (userId) => {
+// Fetch Users (once)
+// =============================
+useEffect(() => {
+  const fetchUsersData = async () => {
     try {
-      const [accountsRes, txRes, summaryRes, categoryRes] =
-        await Promise.all([
-          fetch(`http://127.0.0.1:9000/accounts?user_id=${userId}`),
-          fetch(`http://127.0.0.1:9000/transactions?user_id=${userId}`),
-          fetch(`http://127.0.0.1:9000/transactions/summary?user_id=${userId}`),
-          fetch(
-            `http://127.0.0.1:9000/transactions/category-summary?user_id=${userId}`
-          )
-        ]);
-
-      setAccounts(await accountsRes.json());
-      setTransactions(await txRes.json());
-      setSummary(await summaryRes.json());
-      setCategorySummary(await categoryRes.json());
+      const data = await getUsers();
+      setUsers(data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // When selected user changes
-  useEffect(() => {
-    if (!selectedUser) return;
-    fetchUserData(selectedUser);
-  }, [selectedUser]);
+  fetchUsersData();
+}, []);
 
-  // =============================
-  // Create Transaction
-  // =============================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    try {
-      await fetch("http://127.0.0.1:9000/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          user_id: selectedUser,
-          account_id: selectedAccount,
-          amount: parseFloat(amount),
-          category,
-          description,
-          date: new Date().toISOString().split("T")[0]
-        })
-      });
+// =============================
+// Fetch All User Data
+// =============================
+const fetchUserData = async (userId) => {
+  try {
+    const [accountsData, txData, summaryData, categoryData] =
+      await Promise.all([
+        getAccounts(userId),
+        getTransactions(userId),
+        getSummary(userId),
+        getCategorySummary(userId)
+      ]);
 
-      setAmount("");
-      setCategory("");
-      setDescription("");
+    setAccounts(accountsData);
+    setTransactions(txData);
+    setSummary(summaryData);
+    setCategorySummary(categoryData);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-      await fetchUserData(selectedUser);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-  // =============================
-  // Delete Transaction
-  // =============================
-  const handleDelete = async (transactionId) => {
-    try {
-      await fetch(
-        `http://127.0.0.1:9000/transactions/${transactionId}`,
-        { method: "DELETE" }
-      );
+// When selected user changes
+useEffect(() => {
+  if (!selectedUser) return;
+  fetchUserData(selectedUser);
+}, [selectedUser]);
 
-      await fetchUserData(selectedUser);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
+// =============================
+// Create Transaction
+// =============================
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    await createTransaction({
+      user_id: selectedUser,
+      account_id: selectedAccount,
+      amount: parseFloat(amount),
+      category,
+      description,
+      date: new Date().toISOString().split("T")[0]
+    });
+
+    setAmount("");
+    setCategory("");
+    setDescription("");
+
+    await fetchUserData(selectedUser);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+// =============================
+// Delete Transaction
+// =============================
+const handleDelete = async (transactionId) => {
+  try {
+    await deleteTransaction(transactionId);
+    await fetchUserData(selectedUser);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   // =============================
   // Chart Data
