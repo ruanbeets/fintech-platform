@@ -4,6 +4,7 @@ from backend.app.db.deps import get_db
 from backend.app.models.transaction import Transaction
 from backend.app.models.schemas import TransactionCreate, TransactionResponse
 from backend.app.models.account import Account
+from sqlalchemy import func
 import uuid
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
@@ -27,6 +28,23 @@ def get_summary(user_id: uuid.UUID, db: Session = Depends(get_db)):
         "total_income": total_income,
         "total_expenses": total_expenses,
         "net_cashflow": net_cashflow
+    }
+
+@router.get("/category-summary")
+def category_summary(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    results = (
+        db.query(
+            Transaction.category,
+            func.sum(Transaction.amount).label("total")
+        )
+        .filter(Transaction.user_id == user_id)
+        .group_by(Transaction.category)
+        .all()
+    )
+
+    return {
+        category: float(total)
+        for category, total in results
     }
 
 @router.post("/", response_model=TransactionResponse)

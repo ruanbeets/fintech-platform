@@ -30,6 +30,7 @@ function App() {
   const [description, setDescription] = useState("");
   const [selectedAccount, setSelectedAccount] = useState("");
   const [summary, setSummary] = useState(null);
+  const [categorySummary, setCategorySummary] = useState(null);
 
   // Fetch users
   useEffect(() => {
@@ -59,6 +60,12 @@ function App() {
   fetch(`http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`)
     .then(res => res.json())
     .then(data => setSummary(data))
+    .catch(err => console.error(err));
+
+  // Fetch category summary 
+  fetch(`http://127.0.0.1:9000/transactions/category-summary?user_id=${selectedUser}`)
+    .then(res => res.json())
+    .then(data => setCategorySummary(data))
     .catch(err => console.error(err));
 
 }, [selectedUser]);
@@ -100,6 +107,12 @@ function App() {
     setCategory("");
     setDescription("");
 
+    const categoryRes = await fetch(
+      `http://127.0.0.1:9000/transactions/category-summary?user_id=${selectedUser}`
+    );
+    const categoryData = await categoryRes.json();
+    setCategorySummary(categoryData);
+
   } catch (err) {
     console.error(err);
   }
@@ -126,6 +139,12 @@ function App() {
     const summaryData = await summaryRes.json();
     setSummary(summaryData);
 
+
+    const categoryRes = await fetch(
+    `http://127.0.0.1:9000/transactions/category-summary?user_id=${selectedUser}`
+    );
+    const categoryData = await categoryRes.json();
+    setCategorySummary(categoryData);
   } catch (err) {
     console.error(err);
   }
@@ -142,6 +161,19 @@ const chartData = summary
             Math.abs(summary.total_expenses)
           ],
           backgroundColor: ["#4caf50", "#f44336"],
+        },
+      ],
+    }
+  : null;
+
+const categoryChartData = categorySummary
+  ? {
+      labels: Object.keys(categorySummary),
+      datasets: [
+        {
+          label: "Total by Category",
+          data: Object.values(categorySummary).map(v => Math.abs(v)),
+          backgroundColor: "#2196f3",
         },
       ],
     }
@@ -182,8 +214,14 @@ const chartData = summary
           </div>
         )}
 
+        {categoryChartData && (
+          <div style={{ maxWidth: "500px", marginTop: "40px" }}>
+            <h3>Category Breakdown</h3>
+            <Bar data={categoryChartData} />
+          </div>
+        )}
+        
         <h2 style={{ marginTop: "30px" }}>Accounts</h2>
-
         {accounts.map(acc => (
           <div
             key={acc.account_id}
