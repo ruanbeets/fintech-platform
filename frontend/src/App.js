@@ -1,4 +1,23 @@
 import React, { useEffect, useState } from "react";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from "chart.js";
+
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+);
+
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -44,10 +63,11 @@ function App() {
 
 }, [selectedUser]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    fetch("http://127.0.0.1:9000/transactions", {
+  try {
+    await fetch("http://127.0.0.1:9000/transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,36 +80,72 @@ function App() {
         description: description,
         date: new Date().toISOString().split("T")[0],
       }),
-    })
-      .then(res => res.json())
-      .then(newTx => {
-        setTransactions([...transactions, newTx]);
-        setAmount("");
-        setCategory("");
-        setDescription("");
-      })
-      .catch(err => console.error(err));
-  };
+    });
 
-  const handleDelete = (transactionId) => {
-  fetch(`http://127.0.0.1:9000/transactions/${transactionId}`, {
-    method: "DELETE",
-  })
-    .then(() => {
-      // Remove from UI
-      setTransactions(prev =>
-        prev.filter(tx => tx.transaction_id !== transactionId)
-      );
+    // Re-fetch transactions
+    const txRes = await fetch(
+      `http://127.0.0.1:9000/transactions?user_id=${selectedUser}`
+    );
+    const txData = await txRes.json();
+    setTransactions(txData);
 
-      // Refresh summary
-      return fetch(
-        `http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`
-      );
-    })
-    .then(res => res.json())
-    .then(data => setSummary(data))
-    .catch(err => console.error(err));
+    // Re-fetch summary
+    const summaryRes = await fetch(
+      `http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`
+    );
+    const summaryData = await summaryRes.json();
+    setSummary(summaryData);
+
+    setAmount("");
+    setCategory("");
+    setDescription("");
+
+  } catch (err) {
+    console.error(err);
+  }
 };
+
+ const handleDelete = async (transactionId) => {
+  try {
+    await fetch(
+      `http://127.0.0.1:9000/transactions/${transactionId}`,
+      { method: "DELETE" }
+    );
+
+    // Re-fetch transactions
+    const txRes = await fetch(
+      `http://127.0.0.1:9000/transactions?user_id=${selectedUser}`
+    );
+    const txData = await txRes.json();
+    setTransactions(txData);
+
+    // Re-fetch summary
+    const summaryRes = await fetch(
+      `http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`
+    );
+    const summaryData = await summaryRes.json();
+    setSummary(summaryData);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const chartData = summary
+  ? {
+      labels: ["Income", "Expenses"],
+      datasets: [
+        {
+          label: "Amount",
+          data: [
+            summary.total_income,
+            Math.abs(summary.total_expenses)
+          ],
+          backgroundColor: ["#4caf50", "#f44336"],
+        },
+      ],
+    }
+  : null;
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
@@ -119,6 +175,12 @@ function App() {
           <p><strong>Total Expenses:</strong> ${summary?.total_expenses}</p>
           <p><strong>Net Cashflow:</strong> ${summary?.net_cashflow}</p>
         </div>
+
+        {chartData && (
+          <div style={{ maxWidth: "500px", marginTop: "20px" }}>
+            <Bar data={chartData} />
+          </div>
+        )}
 
         <h2 style={{ marginTop: "30px" }}>Accounts</h2>
 
