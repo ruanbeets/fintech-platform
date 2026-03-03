@@ -55,6 +55,7 @@ class AccountResponse(BaseModel):
     user_id: UUID
     account_type: str
     currency: str
+    balance: float | None = 0
 
     class Config:
         from_attributes = True
