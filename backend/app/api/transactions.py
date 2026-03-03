@@ -13,6 +13,21 @@ router = APIRouter(prefix="/transactions", tags=["transactions"])
 def get_transactions(user_id: uuid.UUID, db: Session = Depends(get_db)):
     return db.query(Transaction).filter(Transaction.user_id == user_id).all()
 
+@router.get("/summary")
+def get_summary(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).filter(
+        Transaction.user_id == user_id
+    ).all()
+
+    total_income = sum(t.amount for t in transactions if t.amount > 0)
+    total_expenses = sum(t.amount for t in transactions if t.amount < 0)
+    net_cashflow = total_income + total_expenses
+
+    return {
+        "total_income": total_income,
+        "total_expenses": total_expenses,
+        "net_cashflow": net_cashflow
+    }
 
 @router.post("/", response_model=TransactionResponse)
 def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)):

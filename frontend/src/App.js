@@ -10,17 +10,7 @@ function App() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAccount, setSelectedAccount] = useState("");
-
-  // ===== Financial Summary Calculations =====
-  const totalIncome = transactions
-    .filter(tx => tx.amount > 0)
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const totalExpenses = transactions
-    .filter(tx => tx.amount < 0)
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const netCashflow = totalIncome + totalExpenses;
+  const [summary, setSummary] = useState(null);
 
   // Fetch users
   useEffect(() => {
@@ -32,18 +22,27 @@ function App() {
 
   // Fetch accounts + transactions when user changes
   useEffect(() => {
-    if (!selectedUser) return;
+  if (!selectedUser) return;
 
-    fetch(`http://127.0.0.1:9000/accounts?user_id=${selectedUser}`)
-      .then(res => res.json())
-      .then(data => setAccounts(data))
-      .catch(err => console.error(err));
+  // Fetch accounts
+  fetch(`http://127.0.0.1:9000/accounts?user_id=${selectedUser}`)
+    .then(res => res.json())
+    .then(data => setAccounts(data))
+    .catch(err => console.error(err));
 
-    fetch(`http://127.0.0.1:9000/transactions?user_id=${selectedUser}`)
-      .then(res => res.json())
-      .then(data => setTransactions(data))
-      .catch(err => console.error(err));
-  }, [selectedUser]);
+  // Fetch transactions
+  fetch(`http://127.0.0.1:9000/transactions?user_id=${selectedUser}`)
+    .then(res => res.json())
+    .then(data => setTransactions(data))
+    .catch(err => console.error(err));
+
+  // Fetch summary
+  fetch(`http://127.0.0.1:9000/transactions/summary?user_id=${selectedUser}`)
+    .then(res => res.json())
+    .then(data => setSummary(data))
+    .catch(err => console.error(err));
+
+}, [selectedUser]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -96,11 +95,11 @@ function App() {
           maxWidth: "400px"
         }}>
           <h2>Financial Summary</h2>
-          <p><strong>Total Income:</strong> ${totalIncome}</p>
-          <p><strong>Total Expenses:</strong> ${totalExpenses}</p>
-          <p><strong>Net Cashflow:</strong> ${netCashflow}</p>
+          <p><strong>Total Income:</strong> ${summary?.total_income}</p>
+          <p><strong>Total Expenses:</strong> ${summary?.total_expenses}</p>
+          <p><strong>Net Cashflow:</strong> ${summary?.net_cashflow}</p>
         </div>
-        
+
           <h2 style={{ marginTop: "30px" }}>Create Transaction</h2>
 
           <form onSubmit={handleSubmit}>
