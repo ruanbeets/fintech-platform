@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from backend.app.db.deps import get_db
 from backend.app.models.transaction import Transaction
 from backend.app.models.schemas import TransactionCreate, TransactionResponse
+from backend.app.models.account import Account
 import uuid
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
@@ -15,8 +16,21 @@ def get_transactions(user_id: uuid.UUID, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=TransactionResponse)
 def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)):
+
+    # Create transaction object
     transaction = Transaction(**payload.model_dump())
+
+    # Find related account
+    account = db.query(Account).filter(
+        Account.account_id == payload.account_id
+    ).first()
+
+    # Update account balance
+    account.balance += payload.amount
+
+    # Save transaction
     db.add(transaction)
     db.commit()
     db.refresh(transaction)
+
     return transaction
