@@ -1,0 +1,34 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage / test
+.coverage
+htmlcov/
+
+# Docker
+postgres_data/
+
+# Alembic (future)
+alembic/versions/*.pyc
