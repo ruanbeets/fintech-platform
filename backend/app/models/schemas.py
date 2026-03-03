@@ -22,3 +22,39 @@ class TransactionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# -----------------
+# USER
+# -----------------
+
+class UserCreate(BaseModel):
+    email: str
+
+
+class UserResponse(BaseModel):
+    user_id: UUID
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
+# -----------------
+# ACCOUNT
+# -----------------
+
+class AccountCreate(BaseModel):
+    user_id: UUID
+    account_type: str
+    currency: str
+
+
+class AccountResponse(BaseModel):
+    account_id: UUID
+    user_id: UUID
+    account_type: str
+    currency: str
+
+    class Config:
+        from_attributes = True
