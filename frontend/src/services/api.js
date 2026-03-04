@@ -1,5 +1,5 @@
 const BASE_URL =
-  process.env.REACT_APP_API_URL || "http://127.0.0.1:9000";
+  process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
 
 export async function getUsers() {
   const res = await fetch(`${BASE_URL}/users`);

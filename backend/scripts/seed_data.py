@@ -1,13 +1,18 @@
 import uuid
 from datetime import date
 
-from backend.app.db.session import SessionLocal
-from backend.app.models.user import User
-from backend.app.models.account import Account
-from backend.app.models.transaction import Transaction
+from app.db.session import SessionLocal
+from app.models.user import User
+from app.models.account import Account
+from app.models.transaction import Transaction
+from app.db.base import Base
+from app.db.session import engine
 
 
 def seed():
+    # Create tables first
+    Base.metadata.create_all(bind=engine)
+    
     db = SessionLocal()
 
     # Create user
