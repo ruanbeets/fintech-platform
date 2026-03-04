@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from backend.app.db.deps import get_db
-from backend.app.models.transaction import Transaction
-from backend.app.models.schemas import TransactionCreate, TransactionResponse
-from backend.app.models.account import Account
+from app.db.deps import get_db
+from app.models.transaction import Transaction
+from app.models.schemas import TransactionCreate, TransactionResponse
+from app.models.account import Account
 from sqlalchemy import func
 import uuid
 

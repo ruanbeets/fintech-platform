@@ -1,10 +1,10 @@
-from backend.app.db.base import Base
-from backend.app.db.session import engine
+from app.db.base import Base
+from app.db.session import engine
 
 # Import models so SQLAlchemy registers them
-from backend.app.models.user import User
-from backend.app.models.account import Account
-from backend.app.models.transaction import Transaction
+from app.models.user import User
+from app.models.account import Account
+from app.models.transaction import Transaction
 
 
 def init_db():

@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import Column, String, ForeignKey, Float
 from sqlalchemy.dialects.postgresql import UUID
-from backend.app.db.base import Base
+from app.db.base import Base
 
 class Account(Base):
     __tablename__ = "accounts"

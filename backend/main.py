@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.transactions import router as transactions_router
-from backend.app.api.users import router as users_router
-from backend.app.api.accounts import router as accounts_router
+from app.api.transactions import router as transactions_router
+from app.api.users import router as users_router
+from app.api.accounts import router as accounts_router
 
 # Load environment variables
 load_dotenv()

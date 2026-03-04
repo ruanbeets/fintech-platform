@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Date, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from backend.app.db.base import Base
+from app.db.base import Base
 
 
 class Transaction(Base):
