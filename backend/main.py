@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.transactions import router as transactions_router
 from app.api.users import router as users_router
 from app.api.accounts import router as accounts_router
+from app.api.ingestion import router as ingestion_router
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +28,7 @@ app.add_middleware(
 app.include_router(transactions_router)
 app.include_router(users_router)
 app.include_router(accounts_router)
-
+app.include_router(ingestion_router)
 
 @app.get("/")
 def health_check():
