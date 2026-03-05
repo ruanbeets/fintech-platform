@@ -1,16 +1,19 @@
 from fastapi import APIRouter, UploadFile, File
+from uuid import UUID
 
 from app.ingestion.parser import parse_file
 from app.ingestion.cleaner import clean_transactions
 from app.ingestion.validator import validate_transactions
 from app.ingestion.service import insert_transactions
 
-
 router = APIRouter(prefix="/ingestion", tags=["ingestion"])
 
 
 @router.post("/transactions")
-async def upload_transactions(file: UploadFile = File(...)):
+async def upload_transactions(
+    account_id: UUID,
+    file: UploadFile = File(...)
+):
 
     contents = await file.read()
 
@@ -20,6 +23,6 @@ async def upload_transactions(file: UploadFile = File(...)):
 
     validate_transactions(df)
 
-    inserted = insert_transactions(df)
+    inserted = insert_transactions(df, account_id)
 
     return {"rows_inserted": inserted}

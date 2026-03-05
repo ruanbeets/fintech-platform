@@ -11,6 +11,6 @@ def parse_file(filename: str, contents: bytes):
         df = pd.read_excel(BytesIO(contents))
 
     else:
-        raise ValueError("Unsupported file type")
+        raise ValueError("Unsupported file format")
 
     return df
