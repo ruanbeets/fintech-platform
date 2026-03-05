@@ -211,6 +211,7 @@ const handleDelete = async (transactionId) => {
             <SummaryCard summary={summary} />
 
             <ChartsSection
+              transactions={transactions}
               chartData={chartData}
               categoryChartData={categoryChartData}
               chartOptions={chartOptions}

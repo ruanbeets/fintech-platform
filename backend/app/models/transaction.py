@@ -12,5 +12,6 @@ class Transaction(Base):
     account_id = Column(UUID(as_uuid=True), ForeignKey("accounts.account_id"), nullable=False)
     date = Column(Date, nullable=False)
     amount = Column(Numeric(14, 2), nullable=False)
+    balance = Column(Numeric(14, 2), nullable=False)
     category = Column(String)
     description = Column(String)

@@ -9,7 +9,9 @@ def insert_transactions(df, account_id):
 
     db = SessionLocal()
 
-    account = db.query(Account).filter(Account.account_id == account_id).first()
+    account = db.query(Account).filter(
+        Account.account_id == account_id
+    ).first()
 
     if account is None:
         raise ValueError("Account not found")
@@ -18,25 +20,32 @@ def insert_transactions(df, account_id):
 
     rows = df.to_dict(orient="records")
 
-    objects = []
+    # ensure correct chronological order
+    rows.sort(key=lambda r: r["date"])
+
+    inserted = 0
 
     for row in rows:
-        obj = Transaction(
+
+        tx = Transaction(
             transaction_id=uuid4(),
             user_id=user_id,
             account_id=account_id,
             date=row["date"],
             amount=row["amount"],
+            balance=row["balance"],   # ← use bank balance
             description=row["description"],
             category=row.get("category")
         )
 
-        objects.append(obj)
+        db.add(tx)
 
-    db.bulk_save_objects(objects)
+        inserted += 1
+
+    # update account balance to latest value
+    account.balance = rows[-1]["balance"]
 
     db.commit()
-
     db.close()
 
-    return len(objects)
+    return inserted

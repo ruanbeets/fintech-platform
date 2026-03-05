@@ -23,7 +23,8 @@ def clean_transactions(df: pd.DataFrame):
         df = df.rename(columns={
             "Transaction Date": "date",
             "Description": "description",
-            "Category": "category"
+            "Category": "category",
+            "Balance": "balance"
         })
 
     # EASY EQUITIES FORMAT
@@ -37,15 +38,19 @@ def clean_transactions(df: pd.DataFrame):
 
         df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
         df["category"] = None
+        df["balance"] = None
 
     else:
         raise ValueError("Unknown file format")
 
-    df = df[["date", "amount", "description", "category"]]
-
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
 
+    if "balance" in df.columns:
+        df["balance"] = pd.to_numeric(df["balance"], errors="coerce")
+
     df = df.dropna(subset=["date", "amount"])
+
+    df = df[["date", "amount", "balance", "description", "category"]]
 
     return df

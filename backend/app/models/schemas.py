@@ -17,6 +17,7 @@ class TransactionResponse(BaseModel):
     account_id: UUID
     date: date
     amount: float
+    balance: float
     category: str | None = None
     description: str | None = None
 
