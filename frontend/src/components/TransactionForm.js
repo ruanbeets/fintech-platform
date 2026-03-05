@@ -4,6 +4,8 @@ export default function TransactionForm({
   setSelectedAccount,
   amount,
   setAmount,
+  date,
+  setDate,
   category,
   setCategory,
   description,
@@ -38,14 +40,18 @@ export default function TransactionForm({
           className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
         />
 
-        <input
-          type="text"
-          placeholder="Category"
-          required
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
-        />
+        <div>
+          <label className="text-sm text-gray-400 block mb-1">
+            Date
+          </label>
+          <input
+            type="date"
+            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full text-gray-100"
+          />
+        </div>
 
         <input
           type="text"

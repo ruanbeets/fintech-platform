@@ -46,6 +46,7 @@ function App() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAccount, setSelectedAccount] = useState("");
+  const [date, setDate] = useState("");
 
   // =============================
 // Fetch Users (once)
@@ -102,13 +103,13 @@ const handleSubmit = async (e) => {
 
   try {
     await createTransaction({
-      user_id: selectedUser,
-      account_id: selectedAccount,
-      amount: parseFloat(amount),
-      category,
-      description,
-      date: new Date().toISOString().split("T")[0]
-    });
+    user_id: selectedUser,
+    account_id: selectedAccount,
+    amount: parseFloat(amount),
+    category,
+    description,
+    date: date
+  });
 
     setAmount("");
     setCategory("");
@@ -223,6 +224,8 @@ const handleDelete = async (transactionId) => {
               setSelectedAccount={setSelectedAccount}
               amount={amount}
               setAmount={setAmount}
+              date={date}
+              setDate={setDate}
               category={category}
               setCategory={setCategory}
               description={description}

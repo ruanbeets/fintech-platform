@@ -4,11 +4,21 @@ export default function TransactionList({ transactions, handleDelete }) {
       <h2 className="text-xl font-semibold mb-4">Transactions</h2>
 
       {transactions.map(tx => (
-        <div key={tx.transaction_id} className="mb-4 border-b border-gray-800 pb-4">
+        <div key={tx.transaction_id} className="mb-4 border-b border-gray-800 pb-3">
           <p>
             <strong>{tx.category}</strong> — ${tx.amount}
           </p>
+
           <p className="text-gray-400">{tx.description}</p>
+
+          {/* NEW DATE LINE */}
+          <p className="text-gray-500 text-sm">
+            {new Date(tx.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric"
+            })}
+          </p>
 
           <button
             onClick={() => handleDelete(tx.transaction_id)}
