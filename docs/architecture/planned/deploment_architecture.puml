@@ -1,0 +1,39 @@
+@startuml DeploymentArchitecture
+
+title Fintech Platform Deployment
+
+actor User
+
+node "User Device" {
+    component Browser
+}
+
+node "Docker Host" {
+
+    node "frontend container" {
+        component ReactApp
+    }
+
+    node "backend container" {
+        component FastAPI
+    }
+
+    node "worker container (future)" {
+        component IngestionWorker
+    }
+
+    node "database container" {
+        database PostgreSQL
+    }
+
+}
+
+User --> Browser
+Browser --> ReactApp : HTTP
+ReactApp --> FastAPI : REST
+FastAPI --> PostgreSQL : SQL
+
+FastAPI --> IngestionWorker : enqueue job
+IngestionWorker --> PostgreSQL
+
+@enduml

@@ -1,0 +1,80 @@
+@startuml FintechPlatform
+
+title Fintech Platform Architecture
+
+actor User
+
+rectangle "Frontend (React)\n[[frontend_deps.svg]]" {
+
+    component App
+    component Components
+    component "API Client\nservices/api.js" as ApiClient
+
+}
+
+rectangle "Backend (FastAPI)\n[[backend_deps.svg]]" {
+
+    package "API Layer (app/api)" {
+
+        component Accounts_API
+        component Transactions_API
+        component Users_API
+        component Ingestion_API
+
+    }
+
+    package "Ingestion Pipeline (app/ingestion)" {
+
+        component Parser
+        component Cleaner
+        component Validator
+        component Ingestion_Service
+
+    }
+
+    package "Database Layer (app/db)" {
+
+        component Session
+        component Dependencies
+        component Init_DB
+        component Base
+
+    }
+
+    package "Models (app/models)" {
+
+        component Account_Model
+        component Transaction_Model
+        component User_Model
+        component Schemas
+
+    }
+
+}
+
+database DB as "PostgreSQL"
+
+User --> App
+
+App --> Components
+Components --> ApiClient
+
+ApiClient --> Accounts_API
+ApiClient --> Transactions_API
+ApiClient --> Users_API
+ApiClient --> Ingestion_API
+
+Ingestion_API --> Parser
+Parser --> Cleaner
+Cleaner --> Validator
+Validator --> Ingestion_Service
+
+Accounts_API --> Account_Model
+Transactions_API --> Transaction_Model
+Users_API --> User_Model
+
+Account_Model --> DB
+Transaction_Model --> DB
+User_Model --> DB
+
+@enduml

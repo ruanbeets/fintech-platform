@@ -1,0 +1,61 @@
+@startuml SystemArchitecture
+
+title Fintech Platform System Architecture
+
+actor User
+
+rectangle "Frontend (React)" {
+    component App
+    component Components
+    component "API Client\nservices/api.js" as APIClient
+}
+
+rectangle "Backend (FastAPI)" {
+
+    package "API Layer" {
+        component AccountsAPI
+        component TransactionsAPI
+        component UsersAPI
+        component IngestionAPI
+    }
+
+    package "Service Layer" {
+        component TransactionService
+        component AccountService
+        component UserService
+        component IngestionService
+    }
+
+    package "Repository Layer" {
+        component TransactionRepo
+        component AccountRepo
+        component UserRepo
+    }
+
+}
+
+database DB as "PostgreSQL"
+
+User --> App
+App --> Components
+Components --> APIClient
+
+APIClient --> AccountsAPI
+APIClient --> TransactionsAPI
+APIClient --> UsersAPI
+APIClient --> IngestionAPI
+
+AccountsAPI --> AccountService
+TransactionsAPI --> TransactionService
+UsersAPI --> UserService
+IngestionAPI --> IngestionService
+
+TransactionService --> TransactionRepo
+AccountService --> AccountRepo
+UserService --> UserRepo
+
+TransactionRepo --> DB
+AccountRepo --> DB
+UserRepo --> DB
+
+@enduml
