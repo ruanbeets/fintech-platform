@@ -1,61 +1,141 @@
-@startuml SystemArchitecture
+@startuml FintechPlatform
 
-title Fintech Platform System Architecture
+title Fintech Platform Architecture (MVC + 3-Tier)
 
 actor User
 
-rectangle "Frontend (React)" {
-    component App
-    component Components
-    component "API Client\nservices/api.js" as APIClient
+' =========================
+' Presentation Tier
+' =========================
+rectangle "Presentation Tier (React)" {
+
+    package "View Layer (MVC)" {
+
+        component "App Shell" as App
+        component "UI Components\n(React Components)" as Components
+        component "API Client\nservices/api.js" as ApiClient
+
+    }
+
 }
 
-rectangle "Backend (FastAPI)" {
+' =========================
+' Application Tier
+' =========================
+rectangle "Application Tier (FastAPI Backend)" {
 
-    package "API Layer" {
-        component AccountsAPI
-        component TransactionsAPI
-        component UsersAPI
-        component IngestionAPI
+    package "Controller Layer (MVC)" {
+
+        component "Accounts Controller\nAccounts_API" as Accounts_API
+        component "Transactions Controller\nTransactions_API" as Transactions_API
+        component "Users Controller\nUsers_API" as Users_API
+        component "Ingestion Controller\nIngestion_API" as Ingestion_API
+
     }
 
-    package "Service Layer" {
-        component TransactionService
-        component AccountService
-        component UserService
-        component IngestionService
+    package "Service Layer (Business Logic)" {
+
+        component Accounts_Service
+        component Transactions_Service
+        component Users_Service
+        component Ingestion_Service
+
     }
+
+    package "Domain Services\n(Data Processing)" {
+
+        component Parser
+        component Cleaner
+        component Validator
+
+    }
+
+}
+
+' =========================
+' Data Tier
+' =========================
+rectangle "Data Tier (Persistence)" {
 
     package "Repository Layer" {
-        component TransactionRepo
-        component AccountRepo
-        component UserRepo
+
+        component Accounts_Repository
+        component Transactions_Repository
+        component Users_Repository
+
+    }
+
+    package "Domain / ORM Models (MVC Model)" {
+
+        component Account_Model
+        component Transaction_Model
+        component User_Model
+        component Schemas
+
+    }
+
+    package "Database Infrastructure" {
+
+        component Session
+        component Init_DB
+        component Base
+
     }
 
 }
 
 database DB as "PostgreSQL"
 
+' =========================
+' User Interaction
+' =========================
 User --> App
+
 App --> Components
-Components --> APIClient
+Components --> ApiClient
 
-APIClient --> AccountsAPI
-APIClient --> TransactionsAPI
-APIClient --> UsersAPI
-APIClient --> IngestionAPI
+' =========================
+' Controller interactions
+' =========================
+ApiClient --> Accounts_API
+ApiClient --> Transactions_API
+ApiClient --> Users_API
+ApiClient --> Ingestion_API
 
-AccountsAPI --> AccountService
-TransactionsAPI --> TransactionService
-UsersAPI --> UserService
-IngestionAPI --> IngestionService
+' =========================
+' Controllers -> Services
+' =========================
+Accounts_API --> Accounts_Service
+Transactions_API --> Transactions_Service
+Users_API --> Users_Service
+Ingestion_API --> Ingestion_Service
 
-TransactionService --> TransactionRepo
-AccountService --> AccountRepo
-UserService --> UserRepo
+' =========================
+' Ingestion Pipeline
+' =========================
+Ingestion_Service --> Parser
+Parser --> Cleaner
+Cleaner --> Validator
 
-TransactionRepo --> DB
-AccountRepo --> DB
-UserRepo --> DB
+' =========================
+' Services -> Repositories
+' =========================
+Accounts_Service --> Accounts_Repository
+Transactions_Service --> Transactions_Repository
+Users_Service --> Users_Repository
+
+' =========================
+' Repositories -> Models
+' =========================
+Accounts_Repository --> Account_Model
+Transactions_Repository --> Transaction_Model
+Users_Repository --> User_Model
+
+' =========================
+' Models -> Database
+' =========================
+Account_Model --> DB
+Transaction_Model --> DB
+User_Model --> DB
 
 @enduml

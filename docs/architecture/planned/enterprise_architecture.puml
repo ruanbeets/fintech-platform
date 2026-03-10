@@ -1,0 +1,155 @@
+@startuml FintechPlatform_Enterprise
+
+title Fintech Platform - Enterprise Architecture (API Gateway + Microservices + Event Streaming)
+
+actor User
+
+' =========================
+' Presentation Tier
+' =========================
+rectangle "Presentation Tier" {
+
+    package "React Frontend (MVC View)" {
+
+        component "App Shell"
+        component "UI Components"
+        component "API Client\nservices/api.js" as ApiClient
+
+    }
+
+}
+
+' =========================
+' Edge Layer
+' =========================
+rectangle "Edge Layer" {
+
+    component "API Gateway\n(Auth, Rate Limit, Routing)" as Gateway
+
+}
+
+' =========================
+' Application Services
+' =========================
+rectangle "Application Tier (Microservices)" {
+
+    package "Accounts Service (Bounded Context)" {
+
+        component "Accounts Controller"
+        component "Accounts Service"
+        component "Accounts Repository"
+        component "Account Domain Model"
+
+    }
+
+    package "Transactions Service (Bounded Context)" {
+
+        component "Transactions Controller"
+        component "Transactions Service"
+        component "Transactions Repository"
+        component "Transaction Domain Model"
+
+    }
+
+    package "Users Service (Bounded Context)" {
+
+        component "Users Controller"
+        component "Users Service"
+        component "Users Repository"
+        component "User Domain Model"
+
+    }
+
+    package "Ingestion Service Package" {
+
+        component "Ingestion Controller"
+        component "Ingestion Service"
+        component Parser
+        component Cleaner
+        component Validator
+
+    }
+
+}
+
+' =========================
+' Event Streaming Layer
+' =========================
+rectangle "Event Streaming Platform" {
+
+    queue "Event Bus\nKafka / RabbitMQ" as EventBus
+
+}
+
+' =========================
+' Async Processing
+' =========================
+rectangle "Async Workers" {
+
+    component "Transaction Processor"
+    component "Fraud Detection Worker"
+    component "Notification Worker"
+
+}
+
+' =========================
+' Data Tier
+' =========================
+rectangle "Data Tier" {
+
+    database "Accounts DB\n(PostgreSQL)" as AccountsDB
+    database "Transactions DB\n(PostgreSQL)" as TransactionsDB
+    database "Users DB\n(PostgreSQL)" as UsersDB
+
+}
+
+' =========================
+' User Flow
+' =========================
+'User --> "App Shell"
+
+"App Shell" --> "UI Components"
+"UI Components" --> ApiClient
+
+ApiClient --> Gateway
+
+Gateway --> "Accounts Controller"
+Gateway --> "Transactions Controller"
+Gateway --> "Users Controller"
+Gateway --> "Ingestion Controller"
+
+' =========================
+' Service flow
+' =========================
+"Accounts Controller" --> "Accounts Service"
+"Accounts Service" --> "Accounts Repository"
+"Accounts Repository" --> "Account Domain Model"
+"Account Domain Model" --> AccountsDB
+
+"Transactions Controller" --> "Transactions Service"
+"Transactions Service" --> "Transactions Repository"
+"Transactions Repository" --> "Transaction Domain Model"
+"Transaction Domain Model" --> TransactionsDB
+
+"Users Controller" --> "Users Service"
+"Users Service" --> "Users Repository"
+"Users Repository" --> "User Domain Model"
+"User Domain Model" --> UsersDB
+
+' =========================
+' Ingestion pipeline
+' =========================
+"Ingestion Controller" --> "Ingestion Service"
+"Ingestion Service" --> Parser
+Parser --> Cleaner
+Cleaner --> Validator
+Validator --> EventBus
+
+' =========================
+' Event processing
+' =========================
+EventBus --> "Transaction Processor"
+EventBus --> "Fraud Detection Worker"
+EventBus --> "Notification Worker"
+
+@enduml
