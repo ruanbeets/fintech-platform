@@ -1,90 +1,42 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.db.deps import get_db
-from app.models.transaction import Transaction
-from app.models.schemas import TransactionCreate, TransactionResponse
-from app.models.account import Account
-from sqlalchemy import func
-import uuid
+from uuid import UUID
+
+from app.database.deps import get_db
+from app.schemas.transaction_schema import (
+    TransactionCreate,
+    TransactionResponse
+)
+
+from app.services.transactions_service import (
+    create_new_transaction,
+    list_user_transactions,
+    fetch_transaction,
+    remove_transaction
+)
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
 @router.get("/", response_model=list[TransactionResponse])
-def get_transactions(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    return db.query(Transaction).filter(Transaction.user_id == user_id).all()
+def get_transactions(user_id: UUID, db: Session = Depends(get_db)):
+    return list_user_transactions(db, user_id)
 
-@router.get("/summary")
-def get_summary(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    transactions = db.query(Transaction).filter(
-        Transaction.user_id == user_id
-    ).all()
-
-    total_income = sum(t.amount for t in transactions if t.amount > 0)
-    total_expenses = sum(t.amount for t in transactions if t.amount < 0)
-    net_cashflow = total_income + total_expenses
-
-    return {
-        "total_income": total_income,
-        "total_expenses": total_expenses,
-        "net_cashflow": net_cashflow
-    }
-
-@router.get("/category-summary")
-def category_summary(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    results = (
-        db.query(
-            Transaction.category,
-            func.sum(Transaction.amount).label("total")
-        )
-        .filter(Transaction.user_id == user_id)
-        .group_by(Transaction.category)
-        .all()
-    )
-
-    return {
-        category: float(total)
-        for category, total in results
-    }
 
 @router.post("/", response_model=TransactionResponse)
 def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)):
+    return create_new_transaction(
+        db,
+        payload.user_id,
+        payload.account_id,
+        payload.date,
+        payload.amount,
+        payload.amount,
+        payload.category,
+        payload.description
+    )
 
-    # Create transaction object
-    transaction = Transaction(**payload.model_dump())
-
-    # Find related account
-    account = db.query(Account).filter(
-        Account.account_id == payload.account_id
-    ).first()
-
-    # Update account balance
-    account.balance += float(payload.amount)
-
-    # Save transaction
-    db.add(transaction)
-    db.commit()
-    db.refresh(transaction)
-
-    return transaction
 
 @router.delete("/{transaction_id}")
-def delete_transaction(transaction_id: uuid.UUID, db: Session = Depends(get_db)):
-    transaction = db.query(Transaction).filter(
-        Transaction.transaction_id == transaction_id
-    ).first()
-
-    if not transaction:
-        return {"error": "Transaction not found"}
-
-    # Reverse balance effect
-    account = db.query(Account).filter(
-        Account.account_id == transaction.account_id
-    ).first()
-
-    account.balance -= float(transaction.amount)
-
-    db.delete(transaction)
-    db.commit()
-
-    return {"message": "Transaction deleted"}
+def delete_transaction(transaction_id: UUID, db: Session = Depends(get_db)):
+    return remove_transaction(db, transaction_id)

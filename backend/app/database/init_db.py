@@ -1,5 +1,5 @@
-from app.db.base import Base
-from app.db.session import engine
+from app.database.base import Base
+from app.database.session import engine
 
 # Import models so SQLAlchemy registers them
 from app.models.user import User

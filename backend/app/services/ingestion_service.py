@@ -1,13 +1,11 @@
 from uuid import uuid4
+from sqlalchemy.orm import Session
 
-from app.db.session import SessionLocal
 from app.models.transaction import Transaction
 from app.models.account import Account
 
 
-def insert_transactions(df, account_id):
-
-    db = SessionLocal()
+def insert_transactions(db: Session, df, account_id):
 
     account = db.query(Account).filter(
         Account.account_id == account_id
@@ -20,7 +18,6 @@ def insert_transactions(df, account_id):
 
     rows = df.to_dict(orient="records")
 
-    # ensure correct chronological order
     rows.sort(key=lambda r: r["date"])
 
     inserted = 0
@@ -33,7 +30,7 @@ def insert_transactions(df, account_id):
             account_id=account_id,
             date=row["date"],
             amount=row["amount"],
-            balance=row["balance"],   # ← use bank balance
+            balance=row["balance"],
             description=row["description"],
             category=row.get("category")
         )
@@ -42,10 +39,8 @@ def insert_transactions(df, account_id):
 
         inserted += 1
 
-    # update account balance to latest value
     account.balance = rows[-1]["balance"]
 
     db.commit()
-    db.close()
 
     return inserted
