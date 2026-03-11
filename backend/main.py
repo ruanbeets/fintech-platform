@@ -8,6 +8,8 @@ from app.api.transactions import router as transactions_router
 from app.api.users import router as users_router
 from app.api.accounts import router as accounts_router
 from app.api.ingestion import router as ingestion_router
+from app.api.auth import router as auth_router
+
 
 load_dotenv()
 
@@ -36,6 +38,7 @@ app.include_router(transactions_router, prefix="/api")
 app.include_router(accounts_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(ingestion_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 @app.get("/")
 def health_check():

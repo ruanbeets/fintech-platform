@@ -8,11 +8,12 @@ import uuid
 from datetime import date, timedelta
 
 from app.database.session import SessionLocal
+from app.database.base import Base
+from app.database.session import engine
+
 from app.models.user import User
 from app.models.account import Account
 from app.models.transaction import Transaction
-from app.database.base import Base
-from app.database.session import engine
 
 
 CATEGORIES = [
@@ -71,30 +72,33 @@ def seed():
 
     print("Seeding demo data...")
 
-    # -------- USERS --------
+    # -------- SINGLE DEMO USER --------
 
-    users = [
-        User(email="student@demo.com"),
-        User(email="professional@demo.com"),
-        User(email="investor@demo.com")
-    ]
+    user = User(
+        email="demo@fintrack.com",
+        password="demo123"
+    )
 
-    db.add_all(users)
+    db.add(user)
     db.commit()
+    db.refresh(user)
 
-    for user in users:
-        db.refresh(user)
+    # -------- THREE ACCOUNTS --------
 
-    # -------- ACCOUNTS --------
+    account_types = [
+        "Daily Spending",
+        "Savings",
+        "Investment"
+    ]
 
     accounts = []
 
-    for user in users:
+    for acc_type in account_types:
 
         acc = Account(
             account_id=uuid.uuid4(),
             user_id=user.user_id,
-            account_type="bank",
+            account_type=acc_type,
             currency="ZAR",
             balance=10000
         )
@@ -113,7 +117,7 @@ def seed():
 
         create_transactions(
             db,
-            acc.user_id,
+            user.user_id,
             acc.account_id
         )
 

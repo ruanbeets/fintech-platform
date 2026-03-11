@@ -11,6 +11,7 @@ class User(Base):
 
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=False, index=True)
+    password = Column(String, nullable=False)
 
     # Relationships
     accounts = relationship("Account", back_populates="user")
