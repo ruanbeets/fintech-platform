@@ -1,22 +1,4 @@
-import React, { useEffect, useState } from "react";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-} from "chart.js";
-
-import {
-  getUsers,
-  getAccounts,
-  getTransactions,
-  getSummary,
-  getCategorySummary,
-  createTransaction,
-  deleteTransaction
-} from "./services/api";
+import React from "react";
 
 import Sidebar from "./components/Sidebar";
 import UserSelector from "./components/UserSelector";
@@ -26,172 +8,21 @@ import AccountsSection from "./components/AccountsSection";
 import TransactionForm from "./components/TransactionForm";
 import TransactionList from "./components/TransactionList";
 
-ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-);
+import useDashboard from "./hooks/useDashboard";
+
+import {
+  buildSummaryChart,
+  buildCategoryChart
+} from "./utils/chartUtils";
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("");
-  const [accounts, setAccounts] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [summary, setSummary] = useState(null);
-  const [categorySummary, setCategorySummary] = useState(null);
+  const dashboard = useDashboard();
 
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedAccount, setSelectedAccount] = useState("");
-  const [date, setDate] = useState("");
+  const chartData = buildSummaryChart(dashboard.summary);
+  const categoryChartData = buildCategoryChart(
+    dashboard.categorySummary
+  );
 
-  // =============================
-// Fetch Users (once)
-// =============================
-useEffect(() => {
-  const fetchUsersData = async () => {
-    try {
-      const data = await getUsers();
-      setUsers(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchUsersData();
-}, []);
-
-
-// =============================
-// Fetch All User Data
-// =============================
-const fetchUserData = async (userId) => {
-  try {
-    const [accountsData, txData, summaryData, categoryData] =
-      await Promise.all([
-        getAccounts(userId),
-        getTransactions(userId),
-        getSummary(userId),
-        getCategorySummary(userId)
-      ]);
-
-    setAccounts(accountsData);
-    setTransactions(txData);
-    setSummary(summaryData);
-    setCategorySummary(categoryData);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-
-// When selected user changes
-useEffect(() => {
-  if (!selectedUser) return;
-  fetchUserData(selectedUser);
-}, [selectedUser]);
-
-
-// =============================
-// Create Transaction
-// =============================
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    await createTransaction({
-    user_id: selectedUser,
-    account_id: selectedAccount,
-    amount: parseFloat(amount),
-    category,
-    description,
-    date: date
-  });
-
-    setAmount("");
-    setCategory("");
-    setDescription("");
-
-    await fetchUserData(selectedUser);
-
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-
-// =============================
-// Delete Transaction
-// =============================
-const handleDelete = async (transactionId) => {
-  try {
-    await deleteTransaction(transactionId);
-    await fetchUserData(selectedUser);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-  // =============================
-  // Chart Data
-  // =============================
-  const chartData = summary
-    ? {
-        labels: ["Income", "Expenses"],
-        datasets: [
-          {
-            label: "Amount",
-            data: [
-              summary.total_income,
-              Math.abs(summary.total_expenses)
-            ],
-            backgroundColor: ["#4caf50", "#f44336"]
-          }
-        ]
-      }
-    : null;
-
-  const categoryChartData = categorySummary
-    ? {
-        labels: Object.keys(categorySummary),
-        datasets: [
-          {
-            label: "Total by Category",
-            data: Object.values(categorySummary).map((v) =>
-              Math.abs(v)
-            ),
-            backgroundColor: "#2196f3"
-          }
-        ]
-      }
-    : null;
-
-  const chartOptions = {
-    plugins: {
-      legend: {
-        labels: {
-          color: "#9CA3AF"
-        }
-      }
-    },
-    scales: {
-      x: {
-        ticks: { color: "#9CA3AF" },
-        grid: { color: "rgba(255,255,255,0.05)" }
-      },
-      y: {
-        ticks: { color: "#9CA3AF" },
-        grid: { color: "rgba(255,255,255,0.05)" }
-      }
-    }
-  };
-
-  // =============================
-  // Render
-  // =============================
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex">
       <Sidebar />
@@ -202,41 +33,29 @@ const handleDelete = async (transactionId) => {
         </h1>
 
         <UserSelector
-          users={users}
-          setSelectedUser={setSelectedUser}
+          users={dashboard.users}
+          setSelectedUser={dashboard.setSelectedUser}
         />
 
-        {selectedUser && (
+        {dashboard.selectedUser && (
           <div className="space-y-10">
-            <SummaryCard summary={summary} />
+            <SummaryCard summary={dashboard.summary} />
 
             <ChartsSection
-              transactions={transactions}
+              transactions={dashboard.transactions}
               chartData={chartData}
               categoryChartData={categoryChartData}
-              chartOptions={chartOptions}
             />
 
-            <AccountsSection accounts={accounts} />
+            <AccountsSection accounts={dashboard.accounts} />
 
             <TransactionForm
-              accounts={accounts}
-              selectedAccount={selectedAccount}
-              setSelectedAccount={setSelectedAccount}
-              amount={amount}
-              setAmount={setAmount}
-              date={date}
-              setDate={setDate}
-              category={category}
-              setCategory={setCategory}
-              description={description}
-              setDescription={setDescription}
-              handleSubmit={handleSubmit}
+              {...dashboard}
             />
 
             <TransactionList
-              transactions={transactions}
-              handleDelete={handleDelete}
+              transactions={dashboard.transactions}
+              handleDelete={dashboard.handleDelete}
             />
           </div>
         )}

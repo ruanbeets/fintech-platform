@@ -1,5 +1,5 @@
 export default function TransactionForm({
-  accounts,
+  accounts = [],
   selectedAccount,
   setSelectedAccount,
   amount,
@@ -12,11 +12,15 @@ export default function TransactionForm({
   setDescription,
   handleSubmit
 }) {
+
+  const safeAccounts = Array.isArray(accounts) ? accounts : [];
+
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 p-6 rounded-2xl shadow-lg">
       <h2 className="text-xl font-semibold mb-4">Create Transaction</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+
         <select
           required
           value={selectedAccount}
@@ -24,11 +28,13 @@ export default function TransactionForm({
           className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
         >
           <option value="">-- Select Account --</option>
-          {accounts.map(acc => (
+
+          {safeAccounts.map((acc) => (
             <option key={acc.account_id} value={acc.account_id}>
               {acc.account_type} ({acc.currency})
             </option>
           ))}
+
         </select>
 
         <input
@@ -44,6 +50,7 @@ export default function TransactionForm({
           <label className="text-sm text-gray-400 block mb-1">
             Date
           </label>
+
           <input
             type="date"
             required
@@ -52,6 +59,14 @@ export default function TransactionForm({
             className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full text-gray-100"
           />
         </div>
+
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg w-full"
+        />
 
         <input
           type="text"
@@ -68,6 +83,7 @@ export default function TransactionForm({
         >
           Add Transaction
         </button>
+
       </form>
     </div>
   );

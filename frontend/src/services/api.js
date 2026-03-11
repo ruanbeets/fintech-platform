@@ -1,41 +1,91 @@
-const BASE_URL =
-  process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+import axios from "axios";
 
-export async function getUsers() {
-  const res = await fetch(`${BASE_URL}/users`);
-  return res.json();
-}
+// =======================================
+// API CLIENT
+// =======================================
 
-export async function getAccounts(userId) {
-  const res = await fetch(`${BASE_URL}/accounts?user_id=${userId}`);
-  return res.json();
-}
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
+  headers: {
+    "Content-Type": "application/json"
+  }
+});
 
-export async function getTransactions(userId) {
-  const res = await fetch(`${BASE_URL}/transactions?user_id=${userId}`);
-  return res.json();
-}
 
-export async function getSummary(userId) {
-  const res = await fetch(`${BASE_URL}/transactions/summary?user_id=${userId}`);
-  return res.json();
-}
+// =======================================
+// USERS
+// =======================================
 
-export async function getCategorySummary(userId) {
-  const res = await fetch(`${BASE_URL}/transactions/category-summary?user_id=${userId}`);
-  return res.json();
-}
+export const getUsers = async () => {
+  const res = await API.get("/api/users/");
+  return res.data;
+};
 
-export async function createTransaction(payload) {
-  await fetch(`${BASE_URL}/transactions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-}
 
-export async function deleteTransaction(id) {
-  await fetch(`${BASE_URL}/transactions/${id}`, {
-    method: "DELETE"
-  });
-}
+// =======================================
+// ACCOUNTS
+// =======================================
+
+export const getAccounts = async (userId) => {
+  const res = await API.get(`/api/accounts?user_id=${userId}`);
+  return res.data;
+};
+
+
+// =======================================
+// TRANSACTIONS
+// =======================================
+
+export const getTransactions = async (userId) => {
+  const res = await API.get(`/api/transactions?user_id=${userId}`);
+  return res.data;
+};
+
+export const createTransaction = async (data) => {
+  const res = await API.post("/api/transactions", data);
+  return res.data;
+};
+
+export const deleteTransaction = async (transactionId) => {
+  const res = await API.delete(`/api/transactions/${transactionId}`);
+  return res.data;
+};
+
+
+// =======================================
+// ANALYTICS
+// =======================================
+
+export const getSummary = async (userId) => {
+  const res = await API.get(`/api/transactions/summary?user_id=${userId}`);
+  return res.data;
+};
+
+export const getCategorySummary = async (userId) => {
+  const res = await API.get(
+    `/api/transactions/category-summary?user_id=${userId}`
+  );
+  return res.data;
+};
+
+
+// =======================================
+// INGESTION (CSV Upload)
+// =======================================
+
+export const uploadTransactions = async (accountId, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await API.post(
+    `/api/ingestion/transactions?account_id=${accountId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  );
+
+  return res.data;
+};

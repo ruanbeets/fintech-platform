@@ -19,9 +19,9 @@ ChartJS.register(
   Legend
 );
 
-function BalanceChart({ transactions }) {
+function BalanceChart({ transactions = [] }) {
 
-  if (!transactions || transactions.length === 0) {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
     return null;
   }
 
@@ -31,13 +31,13 @@ function BalanceChart({ transactions }) {
   );
 
   const data = {
-    labels: sorted.map(tx =>
+    labels: sorted.map((tx) =>
       new Date(tx.date).toLocaleDateString()
     ),
     datasets: [
       {
         label: "Balance",
-        data: sorted.map(tx => tx.balance),
+        data: sorted.map((tx) => tx.balance),
         borderColor: "#4ade80",
         backgroundColor: "#4ade80",
         tension: 0.3,
@@ -66,12 +66,7 @@ function BalanceChart({ transactions }) {
     }
   };
 
-  return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800/60 p-6 rounded-2xl shadow-lg">
-      <h3 className="mb-4">Balance Over Time</h3>
-      <Line data={data} options={options} />
-    </div>
-  );
+  return <Line data={data} options={options} />;
 }
 
 export default BalanceChart;
