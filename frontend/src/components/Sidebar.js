@@ -1,14 +1,50 @@
+import { NavLink } from "react-router-dom";
+
 export default function Sidebar() {
   return (
-    <div className="w-64 bg-gray-900 border-r border-gray-800 p-6">
-      <h2 className="text-xl font-bold mb-8">Fintech</h2>
+    <div className="w-64 bg-gray-900 text-gray-200 p-6 min-h-screen">
 
-      <nav className="space-y-4 text-gray-400">
-        <div className="hover:text-white cursor-pointer">Dashboard</div>
-        <div className="hover:text-white cursor-pointer">Accounts</div>
-        <div className="hover:text-white cursor-pointer">Analytics</div>
-        <div className="hover:text-white cursor-pointer">Settings</div>
+      <h2 className="text-xl font-bold mb-8">
+        Fintech
+      </h2>
+
+      <nav className="flex flex-col gap-4">
+
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            isActive
+              ? "text-white font-semibold"
+              : "text-gray-400 hover:text-white"
+          }
+        >
+          Dashboard
+        </NavLink>
+
+        <NavLink
+          to="/accounts"
+          className={({ isActive }) =>
+            isActive
+              ? "text-white font-semibold"
+              : "text-gray-400 hover:text-white"
+          }
+        >
+          Accounts
+        </NavLink>
+
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            isActive
+              ? "text-white font-semibold"
+              : "text-gray-400 hover:text-white"
+          }
+        >
+          Settings
+        </NavLink>
+
       </nav>
+
     </div>
   );
 }

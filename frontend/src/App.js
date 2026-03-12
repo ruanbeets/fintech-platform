@@ -1,107 +1,84 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
-import UserSelector from "./components/UserSelector";
-import SummaryCard from "./components/SummaryCard";
-import ChartsSection from "./components/ChartsSection";
-import AccountsSection from "./components/AccountsSection";
-import TransactionForm from "./components/TransactionForm";
-import TransactionList from "./components/TransactionList";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import AccountsPage from "./pages/AccountsPage";
+import AccountDetailPage from "./pages/AccountDetailPage";
+import SettingsPage from "./pages/SettingsPage";
 
-import useDashboard from "./hooks/useDashboard";
-
-import {
-  buildSummaryChart,
-  buildCategoryChart
-} from "./utils/chartUtils";
-
-function App() {
-
-  const logout = () => {
-    localStorage.clear();
-    window.location.reload();
-  };
-
-  const [user, setUser] = useState(null);
-
-  const dashboard = useDashboard();
-
-  useEffect(() => {
-
-    const savedUser = localStorage.getItem("user_id");
-    const email = localStorage.getItem("user_email");
-
-    if (savedUser) {
-      setUser({
-        user_id: savedUser,
-        email: email
-      });
-
-      dashboard.setSelectedUser(savedUser);
-    }
-
-  }, []);
-
-  if (!user) {
-    return <LoginPage setUser={setUser} />;
-  }
-
-  const chartData = buildSummaryChart(dashboard.summary);
-
-  const categoryChartData = buildCategoryChart(
-    dashboard.categorySummary
-  );
-
+function AppLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex">
 
       <Sidebar />
 
       <div className="flex-1 p-10 overflow-y-auto">
-
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">
-            Fintech Dashboard
-          </h1>
-
-          <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="text-sm mb-6 text-gray-400">
-          Logged in as: {user.email}
-        </div>
-
-        {dashboard.selectedUser && (
-          <div className="space-y-10">
-
-            <SummaryCard summary={dashboard.summary} />
-
-            <ChartsSection
-              transactions={dashboard.transactions}
-              chartData={chartData}
-              categoryChartData={categoryChartData}
-            />
-
-            <AccountsSection accounts={dashboard.accounts} />
-
-            <TransactionForm {...dashboard} />
-
-            <TransactionList
-              transactions={dashboard.transactions}
-              handleDelete={dashboard.handleDelete}
-            />
-
-          </div>
-        )}
-
+        {children}
       </div>
+
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+
+      <Routes>
+
+        <Route path="/" element={<LoginPage />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <DashboardPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/accounts"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <AccountsPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/accounts/:id"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <AccountDetailPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <SettingsPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 

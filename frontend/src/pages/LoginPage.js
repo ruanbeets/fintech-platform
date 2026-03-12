@@ -1,21 +1,26 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { login } from "../services/api";
 
-function LoginPage({ setUser }) {
+function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+
       const user = await login(email, password);
 
       localStorage.setItem("user_id", user.user_id);
       localStorage.setItem("user_email", user.email);
 
-      setUser(user);
+      navigate("/dashboard");
+
     } catch (err) {
       alert("Invalid login");
     }
