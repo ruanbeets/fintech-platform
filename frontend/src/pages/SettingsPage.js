@@ -1,26 +1,55 @@
+import TopBar from "../components/layout/TopBar";
+
+import PageHeader from "../components/common/PageHeader";
+
+import SettingsSection from "../components/settings/SettingsSection";
+import ProfileSettings from "../components/settings/ProfileSettings";
+import CurrencySelector from "../components/settings/CurrencySelector";
+import ThemeToggle from "../components/settings/ThemeToggle";
+import PreferencesSettings from "../components/settings/PreferencesSettings";
+import ConnectedAccounts from "../components/settings/ConnectedAccounts";
+
 export default function SettingsPage() {
 
-  const email = localStorage.getItem("user_email");
-
   return (
+
     <div>
 
-      <h1 className="text-4xl font-bold mb-8">
-        Settings
-      </h1>
+      <TopBar />
 
-      <div className="bg-gray-900 p-6 rounded-xl">
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your preferences and integrations"
+      />
 
-        <p className="text-gray-400">
-          Logged in as:
-        </p>
+      <SettingsSection title="Profile">
 
-        <p className="text-lg font-medium">
-          {email}
-        </p>
+        <ProfileSettings />
 
-      </div>
+      </SettingsSection>
+
+      <SettingsSection title="Preferences">
+
+        <div className="space-y-4">
+
+          <CurrencySelector />
+
+          <ThemeToggle />
+
+          <PreferencesSettings />
+
+        </div>
+
+      </SettingsSection>
+
+      <SettingsSection title="Connected Accounts">
+
+        <ConnectedAccounts />
+
+      </SettingsSection>
 
     </div>
+
   );
+
 }

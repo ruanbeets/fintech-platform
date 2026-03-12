@@ -1,72 +1,26 @@
-import {
-  Chart as ChartJS,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  Legend
-} from "chart.js";
-
 import { Line } from "react-chartjs-2";
+import { baseChartOptions } from "../../constants/chartConfig";
 
-ChartJS.register(
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  Legend
-);
+export default function BalanceChart({ data }) {
 
-function BalanceChart({ transactions = [] }) {
+  if (!data || !data.labels) return null;
 
-  if (!Array.isArray(transactions) || transactions.length === 0) {
-    return null;
-  }
+  return (
 
-  // sort transactions chronologically
-  const sorted = [...transactions].sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
+    <div className="h-96 bg-fintech-card border border-fintech-border rounded-xl p-6">
+
+      <h3 className="text-lg font-semibold mb-4">
+        Balance Over Time
+      </h3>
+
+      <Line
+        data={data}
+        options={baseChartOptions}
+        redraw={true}
+      />
+
+    </div>
+
   );
 
-  const data = {
-    labels: sorted.map((tx) =>
-      new Date(tx.date).toLocaleDateString()
-    ),
-    datasets: [
-      {
-        label: "Balance",
-        data: sorted.map((tx) => tx.balance),
-        borderColor: "#4ade80",
-        backgroundColor: "#4ade80",
-        tension: 0.3,
-        pointRadius: 2
-      }
-    ]
-  };
-
-  const options = {
-    plugins: {
-      legend: {
-        labels: {
-          color: "#9CA3AF"
-        }
-      }
-    },
-    scales: {
-      x: {
-        ticks: { color: "#9CA3AF" },
-        grid: { color: "rgba(255,255,255,0.05)" }
-      },
-      y: {
-        ticks: { color: "#9CA3AF" },
-        grid: { color: "rgba(255,255,255,0.05)" }
-      }
-    }
-  };
-
-  return <Line data={data} options={options} />;
 }
-
-export default BalanceChart;

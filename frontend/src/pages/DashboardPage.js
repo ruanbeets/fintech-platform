@@ -1,70 +1,80 @@
-import { useEffect, useState } from "react";
+import TopBar from "../components/layout/TopBar";
 
-import SummaryCard from "../components/SummaryCard";
-import ChartsSection from "../components/ChartsSection";
+import PageHeader from "../components/common/PageHeader";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+
+import DashboardGrid from "../components/dashboard/DashboardGrid";
+import NetWorthCard from "../components/dashboard/NetWorthCard";
+import AccountHealthIndicator from "../components/dashboard/AccountHealthIndicator";
+import BudgetProgressBar from "../components/dashboard/BudgetProgressBar";
+import SummaryCard from "../components/dashboard/SummaryCard";
+import ChartsSection from "../components/dashboard/ChartsSection";
+import RecentTransactionsCard from "../components/dashboard/RecentTransactionsCard";
+
+import useDashboard from "../hooks/useDashboard";
 
 import {
-  getSummary,
-  getCategorySummary,
-  getTransactions
-} from "../services/api";
-
-import {
-  buildSummaryChart,
+  buildBalanceChart,
   buildCategoryChart
 } from "../utils/chartUtils";
 
 export default function DashboardPage() {
 
-  const [summary, setSummary] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [categorySummary, setCategorySummary] = useState([]);
+  const {
+    accounts,
+    transactions,
+    summary,
+    categorySummary,
+    loading
+  } = useDashboard();
 
-  useEffect(() => {
+  if (loading) return <LoadingSpinner />;
 
-    const fetchData = async () => {
-
-      const userId = localStorage.getItem("user_id");
-
-      if (!userId) return;
-
-      const summaryData = await getSummary(userId);
-      const categoryData = await getCategorySummary(userId);
-      const transactionData = await getTransactions(userId);
-
-      setSummary(summaryData);
-      setCategorySummary(categoryData);
-      setTransactions(transactionData);
-    };
-
-    fetchData();
-
-  }, []);
-
-  const chartData = buildSummaryChart(summary);
-  const categoryChartData = buildCategoryChart(categorySummary);
+  const balanceChart = buildBalanceChart(transactions);
+  const categoryChart = buildCategoryChart(categorySummary);
 
   return (
+
     <div>
 
-      <h1 className="text-4xl font-bold mb-2">
-        Dashboard
-      </h1>
+      <TopBar />
 
-      <p className="text-gray-400 mb-8">
-        Financial overview across all accounts
-      </p>
-
-      {summary && (
-        <SummaryCard summary={summary} />
-      )}
-
-      <ChartsSection
-        transactions={transactions}
-        chartData={chartData}
-        categoryChartData={categoryChartData}
+      <PageHeader
+        title="Dashboard"
+        subtitle="Financial overview across all accounts"
       />
 
+      <DashboardGrid>
+
+        <NetWorthCard accounts={accounts} />
+
+        <AccountHealthIndicator
+          transactions={transactions}
+        />
+
+        <BudgetProgressBar
+          transactions={transactions}
+        />
+
+      </DashboardGrid>
+
+      <SummaryCard summary={summary} />
+
+      <ChartsSection
+        balanceChart={balanceChart}
+        categoryChart={categoryChart}
+      />
+
+      <div className="mt-10">
+
+        <RecentTransactionsCard
+          transactions={transactions}
+        />
+
+      </div>
+
     </div>
+
   );
+
 }

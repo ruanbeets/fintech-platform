@@ -1,34 +1,20 @@
 @startuml FintechPlatform
 
-title FinTrack Platform Architecture (MVC + 3-Tier)
+title Fintech Platform Architecture (MVC + 3-Tier)
 
 actor User
 
 ' =========================
 ' Presentation Tier
 ' =========================
-rectangle "Presentation Tier (React Frontend)" {
-
-    package "App Shell" {
-
-        component "Top Bar\n(User + Logout)" as TopBar
-        component "Sidebar Navigation" as Sidebar
-        component "Router\nReact Router" as Router
-    }
+rectangle "Presentation Tier (React)" {
 
     package "View Layer (MVC)" {
 
-        component "Dashboard Page\n(Financial Summary)" as Dashboard
-        component "Accounts Page\n(Account Selector)" as AccountsPage
-        component "Account Detail Page\n(Transactions)" as AccountDetail
-        component "Settings Page\n(User + Preferences)" as Settings
-        component "Login Page" as Login
-
-    }
-
-    package "Client Layer" {
-
+        component "App Shell" as App
+        component "UI Components\n(React Components)" as Components
         component "API Client\nservices/api.js" as ApiClient
+
     }
 
 }
@@ -40,32 +26,27 @@ rectangle "Application Tier (FastAPI Backend)" {
 
     package "Controller Layer (MVC)" {
 
-        component "Auth Controller\nAuth_API" as Auth_API
         component "Accounts Controller\nAccounts_API" as Accounts_API
         component "Transactions Controller\nTransactions_API" as Transactions_API
         component "Users Controller\nUsers_API" as Users_API
-        component "Analytics Controller\nAnalytics_API" as Analytics_API
         component "Ingestion Controller\nIngestion_API" as Ingestion_API
 
     }
 
     package "Service Layer (Business Logic)" {
 
-        component Auth_Service
         component Accounts_Service
         component Transactions_Service
         component Users_Service
-        component Analytics_Service
         component Ingestion_Service
 
     }
 
-    package "Domain Processing" {
+    package "Domain Services\n(Data Processing)" {
 
         component Parser
         component Cleaner
         component Validator
-        component Analytics_Engine
 
     }
 
@@ -84,7 +65,7 @@ rectangle "Data Tier (Persistence)" {
 
     }
 
-    package "ORM / Domain Models (MVC Model)" {
+    package "Domain / ORM Models (MVC Model)" {
 
         component Account_Model
         component Transaction_Model
@@ -108,40 +89,25 @@ database DB as "PostgreSQL"
 ' =========================
 ' User Interaction
 ' =========================
-User --> Login
-Login --> ApiClient
+User --> App
 
-User --> Router
-Router --> Dashboard
-Router --> AccountsPage
-Router --> Settings
-
-TopBar --> Router
-Sidebar --> Router
-
-Dashboard --> ApiClient
-AccountsPage --> ApiClient
-AccountDetail --> ApiClient
-Settings --> ApiClient
+App --> Components
+Components --> ApiClient
 
 ' =========================
-' API Client -> Controllers
+' Controller interactions
 ' =========================
-ApiClient --> Auth_API
 ApiClient --> Accounts_API
 ApiClient --> Transactions_API
 ApiClient --> Users_API
-ApiClient --> Analytics_API
 ApiClient --> Ingestion_API
 
 ' =========================
 ' Controllers -> Services
 ' =========================
-Auth_API --> Auth_Service
 Accounts_API --> Accounts_Service
 Transactions_API --> Transactions_Service
 Users_API --> Users_Service
-Analytics_API --> Analytics_Service
 Ingestion_API --> Ingestion_Service
 
 ' =========================
@@ -150,13 +116,6 @@ Ingestion_API --> Ingestion_Service
 Ingestion_Service --> Parser
 Parser --> Cleaner
 Cleaner --> Validator
-Validator --> Transactions_Service
-
-' =========================
-' Analytics Processing
-' =========================
-Analytics_Service --> Analytics_Engine
-Analytics_Engine --> Transactions_Repository
 
 ' =========================
 ' Services -> Repositories
