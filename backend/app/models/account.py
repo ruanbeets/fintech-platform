@@ -1,27 +1,24 @@
-import uuid
-from sqlalchemy import Column, String, ForeignKey, Numeric
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+import uuid
+from datetime import datetime
 
 from app.database.base import Base
 
 
 class Account(Base):
+
     __tablename__ = "accounts"
 
-    account_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.user_id"),
-        nullable=False
-    )
+    name = Column(String, nullable=False)
+    institution = Column(String)
 
-    account_type = Column(String, nullable=False)
-    currency = Column(String, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
-    balance = Column(Numeric(14, 2), default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Relationships
     user = relationship("User", back_populates="accounts")
     transactions = relationship("Transaction", back_populates="account")

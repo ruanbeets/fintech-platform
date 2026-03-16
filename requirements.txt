@@ -28,3 +28,5 @@ pandas
 openpyxl
 python-multipart
 pylint
+python-jose
+passlib[bcrypt]

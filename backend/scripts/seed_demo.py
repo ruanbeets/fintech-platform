@@ -1,50 +1,80 @@
 import sys
 import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import random
 import uuid
 from datetime import date, timedelta
 
-from app.database.session import SessionLocal
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from app.database.session import SessionLocal, engine
 from app.database.base import Base
-from app.database.session import engine
 
 from app.models.user import User
 from app.models.account import Account
 from app.models.transaction import Transaction
 
 
-CATEGORIES = [
-    "Food",
-    "Transport",
-    "Salary",
-    "Shopping",
-    "Entertainment",
-    "Utilities",
-    "Investment",
-    "Transfer"
-]
+START_DATE = date(2025, 1, 1)
+DAYS = 180  # 6 months of transactions
 
 
-def create_transactions(db, user_id, account_id, start_balance=10000):
+def create_transactions(db, user_id, account_id, start_balance=20000):
 
     balance = start_balance
-    start_date = date(2025, 1, 1)
-
     transactions = []
 
-    for i in range(60):
+    for day in range(DAYS):
 
-        tx_date = start_date + timedelta(days=i * 2)
+        tx_date = START_DATE + timedelta(days=day)
+        weekday = tx_date.weekday()
 
-        category = random.choice(CATEGORIES)
+        amount = None
+        category = None
+        description = None
 
-        if category == "Salary":
-            amount = random.randint(2000, 4000)
+        # ---------------- SALARY ----------------
+        if tx_date.day == 1:
+            amount = 35000
+            category = "Salary"
+            description = "Monthly Salary"
+
+        # ---------------- RENT ----------------
+        elif tx_date.day == 3:
+            amount = -12000
+            category = "Utilities"
+            description = "Rent Payment"
+
+        # ---------------- WEEKLY GROCERIES ----------------
+        elif weekday == 5:
+            amount = -850
+            category = "Food"
+            description = "Weekly Groceries"
+
+        # ---------------- DAILY COMMUTE ----------------
+        elif weekday < 5:
+            amount = -120
+            category = "Transport"
+            description = "Work Commute"
+
+        # ---------------- INVESTMENTS (UPWARD TREND) ----------------
+        elif day % 30 == 10:
+            amount = -(1000 + day * 5)
+            category = "Investment"
+            description = "Investment Contribution"
+
+        # ---------------- WEEKEND ENTERTAINMENT ----------------
+        elif weekday == 6:
+            amount = -400
+            category = "Entertainment"
+            description = "Weekend Activity"
+
+        # ---------------- OCCASIONAL SHOPPING SPIKES ----------------
+        elif day in [45, 90, 135]:
+            amount = -5000
+            category = "Shopping"
+            description = "Large Purchase"
+
         else:
-            amount = random.randint(-300, -20)
+            continue
 
         balance += amount
 
@@ -56,7 +86,7 @@ def create_transactions(db, user_id, account_id, start_balance=10000):
             amount=amount,
             balance=balance,
             category=category,
-            description=f"{category} transaction"
+            description=description,
         )
 
         transactions.append(tx)
@@ -72,19 +102,24 @@ def seed():
 
     print("Seeding demo data...")
 
-    # -------- SINGLE DEMO USER --------
+    # ---------------- CLEAN EXISTING DATA ----------------
+    db.query(Transaction).delete()
+    db.query(Account).delete()
+    db.query(User).delete()
+    db.commit()
 
+    # ---------------- CREATE USER ----------------
     user = User(
         email="demo@fintrack.com",
-        password="demo123"
+        hashed_password="demo123",
+        role="user"
     )
 
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # -------- THREE ACCOUNTS --------
-
+    # ---------------- CREATE ACCOUNTS ----------------
     account_types = [
         "Daily Spending",
         "Savings",
@@ -96,11 +131,11 @@ def seed():
     for acc_type in account_types:
 
         acc = Account(
-            account_id=uuid.uuid4(),
-            user_id=user.user_id,
+            id=uuid.uuid4(),
+            user_id=user.id,
             account_type=acc_type,
             currency="ZAR",
-            balance=10000
+            balance=20000
         )
 
         accounts.append(acc)
@@ -111,14 +146,14 @@ def seed():
     for acc in accounts:
         db.refresh(acc)
 
-    # -------- TRANSACTIONS --------
-
+    # ---------------- CREATE TRANSACTIONS ----------------
     for acc in accounts:
 
         create_transactions(
             db,
-            user.user_id,
-            acc.account_id
+            user.id,
+            acc.id,
+            start_balance=20000
         )
 
     db.commit()

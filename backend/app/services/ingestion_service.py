@@ -1,46 +1,37 @@
-from uuid import uuid4
 from sqlalchemy.orm import Session
 
-from app.models.transaction import Transaction
-from app.models.account import Account
+from app.ingestion.parser import parse_file
+from app.ingestion.cleaner import clean_transactions
+from app.ingestion.validator import validate_transactions
+
+from app.repositories.transactions_repository import TransactionsRepository
 
 
-def insert_transactions(db: Session, df, account_id):
+class IngestionService:
 
-    account = db.query(Account).filter(
-        Account.account_id == account_id
-    ).first()
+    @staticmethod
+    def ingest_file(db: Session, user_id, account_id, file):
 
-    if account is None:
-        raise ValueError("Account not found")
+        raw_transactions = parse_file(file)
 
-    user_id = account.user_id
+        cleaned = clean_transactions(raw_transactions)
 
-    rows = df.to_dict(orient="records")
+        validated = validate_transactions(cleaned)
 
-    rows.sort(key=lambda r: r["date"])
+        created = []
 
-    inserted = 0
+        for t in validated:
 
-    for row in rows:
+            transaction = TransactionsRepository.create(
+                db=db,
+                user_id=user_id,
+                account_id=account_id,
+                amount=t["amount"],
+                description=t.get("description"),
+                category_id=t.get("category_id"),
+                type=t["type"]
+            )
 
-        tx = Transaction(
-            transaction_id=uuid4(),
-            user_id=user_id,
-            account_id=account_id,
-            date=row["date"],
-            amount=row["amount"],
-            balance=row["balance"],
-            description=row["description"],
-            category=row.get("category")
-        )
+            created.append(transaction)
 
-        db.add(tx)
-
-        inserted += 1
-
-    account.balance = rows[-1]["balance"]
-
-    db.commit()
-
-    return inserted
+        return created

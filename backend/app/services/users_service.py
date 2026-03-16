@@ -1,36 +1,66 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from app.repositories.users_repository import (
-    create_user,
-    get_user_by_id,
-    get_user_by_email,
-    get_all_users,
-    delete_user
-)
+from app.repositories.users_repository import UsersRepository
+from app.core.security import hash_password, verify_password, create_access_token
+from app.schemas.auth_schema import Token
 
 
-def create_new_user(db: Session, email: str):
-    existing = get_user_by_email(db, email)
+class UsersService:
 
-    if existing:
-        raise ValueError("User already exists")
+    @staticmethod
+    def register_user(db: Session, email: str, password: str):
 
-    return create_user(db, email)
+        existing = UsersRepository.get_by_email(db, email)
 
+        if existing:
+            raise ValueError("User already exists")
 
-def fetch_user(db: Session, user_id: UUID):
-    user = get_user_by_id(db, user_id)
+        hashed = hash_password(password)
 
-    if not user:
-        raise ValueError("User not found")
+        user = UsersRepository.create(db, email, hashed)
 
-    return user
-
-
-def list_users(db: Session):
-    return get_all_users(db)
+        return user
 
 
-def remove_user(db: Session, user_id: UUID):
-    return delete_user(db, user_id)
+    @staticmethod
+    def authenticate_user(db: Session, email: str, password: str):
+
+        user = UsersRepository.get_by_email(db, email)
+
+        if not user:
+            raise ValueError("Invalid credentials")
+
+        if not verify_password(password, user.hashed_password):
+            raise ValueError("Invalid credentials")
+
+        token = create_access_token({
+            "user_id": str(user.id),
+            "role": user.role
+        })
+
+        return Token(
+            access_token=token
+        )
+
+
+    @staticmethod
+    def get_user(db: Session, user_id: UUID):
+
+        user = UsersRepository.get_by_id(db, user_id)
+
+        if not user:
+            raise ValueError("User not found")
+
+        return user
+
+
+    @staticmethod
+    def delete_user(db: Session, user_id: UUID):
+
+        user = UsersRepository.delete(db, user_id)
+
+        if not user:
+            raise ValueError("User not found")
+
+        return user

@@ -1,19 +1,23 @@
-from uuid import UUID
 from pydantic import BaseModel
+from uuid import UUID
+from datetime import datetime
 
 
 class AccountCreate(BaseModel):
-    user_id: UUID
-    account_type: str
-    currency: str
+    name: str
+    institution: str | None = None
 
 
-class AccountResponse(BaseModel):
-    account_id: UUID
-    user_id: UUID
-    account_type: str
-    currency: str
-    balance: float | None = 0
+class AccountUpdate(BaseModel):
+    name: str | None = None
+    institution: str | None = None
+
+
+class AccountRead(BaseModel):
+    id: UUID
+    name: str
+    institution: str | None
+    created_at: datetime
 
     class Config:
         from_attributes = True

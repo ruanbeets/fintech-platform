@@ -1,141 +1,189 @@
-@startuml FintechPlatform
-
-title Fintech Platform Architecture (MVC + 3-Tier)
+@startuml
+title Fintech Platform Architecture (React + FastAPI + PostgreSQL)
 
 actor User
 
-' =========================
-' Presentation Tier
-' =========================
-rectangle "Presentation Tier (React)" {
+' -----------------------------
+' Frontend
+' -----------------------------
 
-    package "View Layer (MVC)" {
+rectangle "Frontend (React)" {
 
-        component "App Shell" as App
-        component "UI Components\n(React Components)" as Components
-        component "API Client\nservices/api.js" as ApiClient
-
-    }
-
-}
-
-' =========================
-' Application Tier
-' =========================
-rectangle "Application Tier (FastAPI Backend)" {
-
-    package "Controller Layer (MVC)" {
-
-        component "Accounts Controller\nAccounts_API" as Accounts_API
-        component "Transactions Controller\nTransactions_API" as Transactions_API
-        component "Users Controller\nUsers_API" as Users_API
-        component "Ingestion Controller\nIngestion_API" as Ingestion_API
-
-    }
-
-    package "Service Layer (Business Logic)" {
-
-        component Accounts_Service
-        component Transactions_Service
-        component Users_Service
-        component Ingestion_Service
-
-    }
-
-    package "Domain Services\n(Data Processing)" {
-
-        component Parser
-        component Cleaner
-        component Validator
-
-    }
+    component "App Shell" as AppShell
+    component "Dashboard Views" as DashboardViews
+    component "Account Views" as AccountViews
+    component "Charts / Analytics" as Charts
+    component "API Client (axios)" as APIClient
 
 }
 
-' =========================
-' Data Tier
-' =========================
-rectangle "Data Tier (Persistence)" {
+' -----------------------------
+' Backend
+' -----------------------------
+
+rectangle "Backend (FastAPI)" {
+
+    package "API Layer" {
+
+        component "Auth API" as AuthAPI
+        component "Users API" as UsersAPI
+        component "Accounts API" as AccountsAPI
+        component "Transactions API" as TransactionsAPI
+        component "Analytics API" as AnalyticsAPI
+        component "Dashboard API" as DashboardAPI
+        component "Budgets API" as BudgetsAPI
+        component "Categories API" as CategoriesAPI
+        component "Notifications API" as NotificationsAPI
+        component "Reports API" as ReportsAPI
+        component "Search API" as SearchAPI
+        component "Settings API" as SettingsAPI
+        component "Ingestion API" as IngestionAPI
+
+    }
+
+    package "Service Layer" {
+
+        component "Users Service" as UsersService
+        component "Accounts Service" as AccountsService
+        component "Transactions Service" as TransactionsService
+        component "Analytics Service" as AnalyticsService
+        component "Dashboard Service" as DashboardService
+        component "Budgets Service" as BudgetsService
+        component "Categories Service" as CategoriesService
+        component "Reports Service" as ReportsService
+        component "Search Service" as SearchService
+        component "Notifications Service" as NotificationsService
+        component "Ingestion Service" as IngestionService
+    }
+
+    package "Domain Processing" {
+
+        component "Parser" as Parser
+        component "Cleaner" as Cleaner
+        component "Validator" as Validator
+
+    }
 
     package "Repository Layer" {
 
-        component Accounts_Repository
-        component Transactions_Repository
-        component Users_Repository
-
+        component "User Repository" as UserRepo
+        component "Account Repository" as AccountRepo
+        component "Transaction Repository" as TransactionRepo
+        component "Budget Repository" as BudgetRepo
+        component "Category Repository" as CategoryRepo
+        component "Notification Repository" as NotificationRepo
     }
 
-    package "Domain / ORM Models (MVC Model)" {
+    package "ORM Models" {
 
-        component Account_Model
-        component Transaction_Model
-        component User_Model
-        component Schemas
-
-    }
-
-    package "Database Infrastructure" {
-
-        component Session
-        component Init_DB
-        component Base
+        component "User Model" as UserModel
+        component "Account Model" as AccountModel
+        component "Transaction Model" as TransactionModel
+        component "Budget Model" as BudgetModel
+        component "Category Model" as CategoryModel
+        component "Notification Model" as NotificationModel
 
     }
 
 }
 
-database DB as "PostgreSQL"
+database "PostgreSQL" as DB
 
-' =========================
-' User Interaction
-' =========================
-User --> App
+' -----------------------------
+' Frontend connections
+' -----------------------------
 
-App --> Components
-Components --> ApiClient
+User --> AppShell
 
-' =========================
-' Controller interactions
-' =========================
-ApiClient --> Accounts_API
-ApiClient --> Transactions_API
-ApiClient --> Users_API
-ApiClient --> Ingestion_API
+AppShell --> DashboardViews
+AppShell --> AccountViews
+AppShell --> Charts
 
-' =========================
-' Controllers -> Services
-' =========================
-Accounts_API --> Accounts_Service
-Transactions_API --> Transactions_Service
-Users_API --> Users_Service
-Ingestion_API --> Ingestion_Service
+DashboardViews --> APIClient
+AccountViews --> APIClient
+Charts --> APIClient
 
-' =========================
-' Ingestion Pipeline
-' =========================
-Ingestion_Service --> Parser
+' -----------------------------
+' API calls
+' -----------------------------
+
+APIClient --> AuthAPI
+APIClient --> UsersAPI
+APIClient --> AccountsAPI
+APIClient --> TransactionsAPI
+APIClient --> AnalyticsAPI
+APIClient --> DashboardAPI
+APIClient --> BudgetsAPI
+APIClient --> CategoriesAPI
+APIClient --> NotificationsAPI
+APIClient --> ReportsAPI
+APIClient --> SearchAPI
+APIClient --> SettingsAPI
+APIClient --> IngestionAPI
+
+' -----------------------------
+' API → Services
+' -----------------------------
+
+AuthAPI --> UsersService
+UsersAPI --> UsersService
+AccountsAPI --> AccountsService
+TransactionsAPI --> TransactionsService
+AnalyticsAPI --> AnalyticsService
+DashboardAPI --> DashboardService
+BudgetsAPI --> BudgetsService
+CategoriesAPI --> CategoriesService
+NotificationsAPI --> NotificationsService
+ReportsAPI --> ReportsService
+SearchAPI --> SearchService
+SettingsAPI --> UsersService
+IngestionAPI --> IngestionService
+
+' -----------------------------
+' Ingestion pipeline
+' -----------------------------
+
+IngestionService --> Parser
 Parser --> Cleaner
 Cleaner --> Validator
+Validator --> TransactionRepo
 
-' =========================
-' Services -> Repositories
-' =========================
-Accounts_Service --> Accounts_Repository
-Transactions_Service --> Transactions_Repository
-Users_Service --> Users_Repository
+' -----------------------------
+' Services → Repositories
+' -----------------------------
 
-' =========================
-' Repositories -> Models
-' =========================
-Accounts_Repository --> Account_Model
-Transactions_Repository --> Transaction_Model
-Users_Repository --> User_Model
+UsersService --> UserRepo
+AccountsService --> AccountRepo
+TransactionsService --> TransactionRepo
+AnalyticsService --> TransactionRepo
+DashboardService --> AccountRepo
+DashboardService --> TransactionRepo
+BudgetsService --> BudgetRepo
+CategoriesService --> CategoryRepo
+NotificationsService --> NotificationRepo
+ReportsService --> TransactionRepo
+SearchService --> TransactionRepo
 
-' =========================
-' Models -> Database
-' =========================
-Account_Model --> DB
-Transaction_Model --> DB
-User_Model --> DB
+' -----------------------------
+' Repositories → Models
+' -----------------------------
+
+UserRepo --> UserModel
+AccountRepo --> AccountModel
+TransactionRepo --> TransactionModel
+BudgetRepo --> BudgetModel
+CategoryRepo --> CategoryModel
+NotificationRepo --> NotificationModel
+
+' -----------------------------
+' Models → Database
+' -----------------------------
+
+UserModel --> DB
+AccountModel --> DB
+TransactionModel --> DB
+BudgetModel --> DB
+CategoryModel --> DB
+NotificationModel --> DB
 
 @enduml

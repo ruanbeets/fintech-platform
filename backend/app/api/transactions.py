@@ -1,69 +1,51 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.database.deps import get_db
-
-from app.schemas.transaction_schema import (
-    TransactionCreate,
-    TransactionResponse
-)
-
-from app.services.transactions_service import (
-    create_new_transaction,
-    list_user_transactions,
-    remove_transaction,
-    get_user_summary,
-    get_category_summary
-)
+from app.services.transactions_service import TransactionsService
+from app.schemas.transaction_schema import TransactionCreate
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
-# ----------------------------
-# GET USER TRANSACTIONS
-# ----------------------------
-@router.get("/", response_model=list[TransactionResponse])
-def get_transactions(user_id: UUID, db: Session = Depends(get_db)):
-    return list_user_transactions(db, user_id)
+@router.post("/")
+def create_transaction(
+    user_id: UUID,
+    transaction: TransactionCreate,
+    db: Session = Depends(get_db)
+):
 
-
-# ----------------------------
-# CREATE TRANSACTION
-# ----------------------------
-@router.post("/", response_model=TransactionResponse)
-def create_transaction(payload: TransactionCreate, db: Session = Depends(get_db)):
-    return create_new_transaction(
-        db,
-        payload.user_id,
-        payload.account_id,
-        payload.date,
-        payload.amount,
-        payload.amount,
-        payload.category,
-        payload.description
+    return TransactionsService.create_transaction(
+        db=db,
+        user_id=user_id,
+        account_id=transaction.account_id,
+        amount=transaction.amount,
+        description=transaction.description,
+        category_id=transaction.category_id,
+        type=transaction.type,
     )
 
 
-# ----------------------------
-# DELETE TRANSACTION
-# ----------------------------
+@router.get("/user/{user_id}")
+def get_user_transactions(user_id: UUID, db: Session = Depends(get_db)):
+
+    return TransactionsService.get_user_transactions(db, user_id)
+
+
+@router.get("/account/{account_id}")
+def get_account_transactions(account_id: UUID, db: Session = Depends(get_db)):
+
+    return TransactionsService.get_account_transactions(db, account_id)
+
+
 @router.delete("/{transaction_id}")
 def delete_transaction(transaction_id: UUID, db: Session = Depends(get_db)):
-    return remove_transaction(db, transaction_id)
 
+    try:
 
-# ----------------------------
-# SUMMARY
-# ----------------------------
-@router.get("/summary")
-def summary(user_id: UUID, db: Session = Depends(get_db)):
-    return get_user_summary(db, user_id)
+        return TransactionsService.delete_transaction(db, transaction_id)
 
+    except ValueError as e:
 
-# ----------------------------
-# CATEGORY SUMMARY
-# ----------------------------
-@router.get("/category-summary")
-def category_summary(user_id: UUID, db: Session = Depends(get_db)):
-    return get_category_summary(db, user_id)
+        raise HTTPException(status_code=404, detail=str(e))

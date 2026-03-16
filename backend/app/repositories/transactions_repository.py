@@ -4,53 +4,72 @@ from uuid import UUID
 from app.models.transaction import Transaction
 
 
-def create_transaction(
-    db: Session,
-    user_id: UUID,
-    account_id: UUID,
-    date,
-    amount,
-    balance,
-    category=None,
-    description=None
-) -> Transaction:
+class TransactionsRepository:
 
-    transaction = Transaction(
-        user_id=user_id,
-        account_id=account_id,
-        date=date,
-        amount=amount,
-        balance=balance,
-        category=category,
-        description=description
-    )
+    @staticmethod
+    def create(
+        db: Session,
+        user_id: UUID,
+        account_id: UUID,
+        amount: float,
+        description: str | None,
+        category_id: UUID | None,
+        type: str,
+    ):
 
-    db.add(transaction)
-    db.commit()
-    db.refresh(transaction)
+        transaction = Transaction(
+            user_id=user_id,
+            account_id=account_id,
+            amount=amount,
+            description=description,
+            category_id=category_id,
+            type=type,
+        )
 
-    return transaction
-
-
-def get_transaction_by_id(db: Session, transaction_id: UUID):
-    return db.query(Transaction).filter(Transaction.transaction_id == transaction_id).first()
-
-
-def get_transactions_by_account(db: Session, account_id: UUID):
-    return db.query(Transaction).filter(Transaction.account_id == account_id).all()
-
-
-def get_transactions_by_user(db: Session, user_id: UUID):
-    return db.query(Transaction).filter(Transaction.user_id == user_id).all()
-
-
-def delete_transaction(db: Session, transaction_id: UUID):
-    transaction = db.query(Transaction).filter(
-        Transaction.transaction_id == transaction_id
-    ).first()
-
-    if transaction:
-        db.delete(transaction)
+        db.add(transaction)
         db.commit()
+        db.refresh(transaction)
 
-    return transaction
+        return transaction
+
+    @staticmethod
+    def get_by_id(db: Session, transaction_id: UUID):
+
+        return (
+            db.query(Transaction)
+            .filter(Transaction.id == transaction_id)
+            .first()
+        )
+
+    @staticmethod
+    def get_by_user(db: Session, user_id: UUID):
+
+        return (
+            db.query(Transaction)
+            .filter(Transaction.user_id == user_id)
+            .all()
+        )
+
+    @staticmethod
+    def get_by_account(db: Session, account_id: UUID):
+
+        return (
+            db.query(Transaction)
+            .filter(Transaction.account_id == account_id)
+            .all()
+        )
+
+    @staticmethod
+    def delete(db: Session, transaction_id: UUID):
+
+        transaction = (
+            db.query(Transaction)
+            .filter(Transaction.id == transaction_id)
+            .first()
+        )
+
+        if transaction:
+            db.delete(transaction)
+            db.commit()
+
+        return transaction

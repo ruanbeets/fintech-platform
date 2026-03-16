@@ -1,21 +1,33 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from app.database.deps import get_db
-from app.schemas.user_schema import UserCreate, UserResponse
-from app.services.users_service import (
-    create_new_user,
-    list_users
-)
+from app.services.users_service import UsersService
+from app.schemas.user_schema import UserRead
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/", response_model=UserResponse)
-def create_user(payload: UserCreate, db: Session = Depends(get_db)):
-    return create_new_user(db, payload.email)
+@router.get("/{user_id}", response_model=UserRead)
+def get_user(user_id: UUID, db: Session = Depends(get_db)):
+
+    try:
+
+        return UsersService.get_user(db, user_id)
+
+    except ValueError as e:
+
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/", response_model=list[UserResponse])
-def get_users(db: Session = Depends(get_db)):
-    return list_users(db)
+@router.delete("/{user_id}")
+def delete_user(user_id: UUID, db: Session = Depends(get_db)):
+
+    try:
+
+        return UsersService.delete_user(db, user_id)
+
+    except ValueError as e:
+
+        raise HTTPException(status_code=404, detail=str(e))

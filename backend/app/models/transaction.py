@@ -1,36 +1,29 @@
-import uuid
-from sqlalchemy import Column, String, Date, ForeignKey, Numeric
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+import uuid
+from datetime import datetime
 
 from app.database.base import Base
 
 
 class Transaction(Base):
+
     __tablename__ = "transactions"
 
-    transaction_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.user_id"),
-        nullable=False
-    )
-
-    account_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("accounts.account_id"),
-        nullable=False
-    )
-
-    date = Column(Date, nullable=False)
-
-    amount = Column(Numeric(14, 2), nullable=False)
-
-    balance = Column(Numeric(14, 2), nullable=False)
-
-    category = Column(String)
     description = Column(String)
+    amount = Column(Float, nullable=False)
 
-    # Relationships
+    type = Column(String)  # income / expense
+
+    date = Column(DateTime, default=datetime.utcnow)
+
+    account_id = Column(UUID(as_uuid=True), ForeignKey("accounts.id"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"))
+
     account = relationship("Account", back_populates="transactions")
+    user = relationship("User", back_populates="transactions")
+    category = relationship("Category", back_populates="transactions")

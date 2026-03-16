@@ -27,3 +27,7 @@ uvicorn==0.41.0
 pandas
 openpyxl
 python-multipart
+python-jose
+passlib[bcrypt]
+pydantic-settings
+email-validator
