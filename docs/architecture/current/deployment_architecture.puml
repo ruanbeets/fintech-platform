@@ -1,0 +1,70 @@
+@startuml FintechDeploymentArchitecture
+
+title Fintech Platform Deployment (Dockerized)
+
+actor User
+
+rectangle "Client" {
+    component "Browser"
+}
+
+rectangle "Edge / Reverse Proxy" {
+    component "Nginx\n(SSL, routing, static)" as Nginx
+}
+
+rectangle "Frontend Container" {
+    component "React App (build)\nserved via Nginx or static" as FE
+}
+
+rectangle "Backend Container" {
+    component "FastAPI (Uvicorn/Gunicorn)" as API
+}
+
+rectangle "Worker / Async Jobs" {
+    component "Background Worker\n(Celery/Tasks)" as Worker
+}
+
+rectangle "Cache Layer" {
+    component "Redis\n(cache + queue)" as Redis
+}
+
+rectangle "Database Layer" {
+    component "PostgreSQL" as DB
+}
+
+' Flow
+User --> Browser
+Browser --> Nginx
+
+' Static + API routing
+Nginx --> FE : serve static assets
+Nginx --> API : /api/*
+
+' Backend connections
+API --> DB
+API --> Redis
+
+' Async jobs
+API --> Worker : enqueue jobs
+Worker --> Redis
+Worker --> DB
+
+note right of Nginx
+- TLS termination
+- Gzip/Brotli
+- Caching headers
+end note
+
+note right of Redis
+- API response cache
+- Rate limiting
+- Task queue broker
+end note
+
+note bottom of API
+- Auth (JWT)
+- Business logic
+- Aggregation endpoints
+end note
+
+@enduml

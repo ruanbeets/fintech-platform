@@ -1,0 +1,52 @@
+@startuml FintechSequenceLoginToDashboard
+
+title User Login → Data Load → Dashboard Render
+
+actor User
+participant "React App" as App
+participant "AuthContext" as Auth
+participant "API Client" as API
+participant "FastAPI Backend" as BE
+participant "DataContext" as Data
+participant "Accounts Service (FE)" as AccSvc
+participant "Transactions Service (FE)" as TxSvc
+participant "Analytics Service (FE)" as AnSvc
+
+User -> App : Enter credentials
+App -> Auth : login(email, password)
+
+Auth -> API : POST /auth/login
+API -> BE : /auth/login
+BE --> API : access_token, user_id
+API --> Auth : token + user_id
+
+Auth -> Auth : store token (localStorage)
+Auth -> API : set Authorization header
+
+Auth -> Data : trigger initial load
+
+Data -> AccSvc : loadAccounts(user_id)
+AccSvc -> API : GET /accounts/user/{id}
+API -> BE : /accounts/user/{id}
+BE --> API : accounts[]
+API --> AccSvc : accounts[]
+AccSvc --> Data : setAccounts()
+
+Data -> TxSvc : loadTransactions(user_id)
+TxSvc -> API : GET /transactions/user/{id}
+API -> BE : /transactions/user/{id}
+BE --> API : transactions[]
+API --> TxSvc : transactions[]
+TxSvc --> Data : setTransactions()
+
+Data -> AnSvc : loadAnalytics(user_id)
+AnSvc -> API : GET /analytics/*
+API -> BE : /analytics/*
+BE --> API : analytics payload
+API --> AnSvc : analytics
+AnSvc --> Data : setAnalytics()
+
+Data --> App : state ready
+App --> User : Render Dashboard
+
+@enduml

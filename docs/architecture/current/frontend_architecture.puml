@@ -1,0 +1,251 @@
+@startuml FintechFrontendExact
+
+title Fintech Frontend - Exact Implementation Structure
+
+actor User
+
+' =========================
+' ENTRY LAYER
+' =========================
+package "Entry" {
+    component IndexJS as "index.js"
+    component AppJS as "App.js"
+}
+
+User --> IndexJS
+IndexJS --> AppJS
+
+' =========================
+' CONTEXTS
+' =========================
+package "contexts" {
+    component AuthContext
+    component DataContext
+    component SettingsContext
+    component ThemeContext
+}
+
+AppJS --> AuthContext
+AuthContext --> SettingsContext
+SettingsContext --> ThemeContext
+ThemeContext --> DataContext
+
+' =========================
+' PAGES
+' =========================
+package "pages" {
+    component LoginPage
+    component DashboardPage
+    component AccountsPage
+    component AccountDetailPage
+    component TransactionsPage
+    component AnalyticsPage
+    component BudgetsPage
+    component ReportsPage
+    component NotificationsPage
+    component SettingsPage
+    component ImportPage
+}
+
+AppJS --> LoginPage
+AppJS --> DashboardPage
+AppJS --> AccountsPage
+AppJS --> TransactionsPage
+AppJS --> AnalyticsPage
+AppJS --> BudgetsPage
+AppJS --> ReportsPage
+AppJS --> NotificationsPage
+AppJS --> SettingsPage
+AppJS --> ImportPage
+
+' =========================
+' LAYOUT
+' =========================
+package "layout" {
+    component AppLayout
+    component ProtectedRoute
+    component Sidebar
+    component Topbar
+}
+
+DashboardPage --> AppLayout
+AccountsPage --> AppLayout
+TransactionsPage --> AppLayout
+
+AppLayout --> Sidebar
+AppLayout --> Topbar
+
+' =========================
+' COMPONENTS
+' =========================
+
+package "accounts" {
+    component AccountsSection
+    component AccountCard
+    component AccountSummary
+    component AccountSelector
+}
+
+package "transactions" {
+    component TransactionList
+    component TransactionForm
+    component TransactionRow
+    component TransactionFilters
+    component TransactionTableHeader
+}
+
+package "analytics" {
+    component AnalyticsOverview
+    component SpendingInsights
+    component ForecastPanel
+}
+
+package "budgets" {
+    component BudgetList
+    component BudgetForm
+    component BudgetProgressBar
+    component BudgetStatusCard
+}
+
+package "dashboard" {
+    component DashboardGrid
+    component SummaryCard
+    component NetWorthCard
+    component MetricCard
+    component RecentTransactionsCard
+    component AccountHealthIndicator
+    component BudgetProgressBarDash as "BudgetProgressBar"
+    component ChartsSection
+}
+
+package "reports" {
+    component MonthlyReport
+    component CategoryReportCard
+    component ExportButtons
+}
+
+package "notifications" {
+    component NotificationList
+    component NotificationItem
+    component NotificationBell
+}
+
+package "settings" {
+    component SettingsSection
+    component ProfileSettings
+    component PreferencesSettings
+    component CurrencySelector
+    component ThemeToggle
+    component ConnectedAccounts
+}
+
+package "ingestion" {
+    component FileUpload
+    component ImportPreview
+    component ImportSummary
+}
+
+package "charts" {
+    component BalanceChart
+    component CashFlowChart
+    component CategoryChart
+    component MonthlyTrendChart
+    component AccountAllocationChart
+}
+
+package "common" {
+    component Card
+    component LoadingSpinner
+    component ErrorMessage
+    component EmptyState
+    component ConfirmDialog
+    component GlobalSearchBar
+    component SearchResults
+    component PageHeader
+}
+
+' =========================
+' PAGE → COMPONENT LINKS
+' =========================
+AccountsPage --> AccountsSection
+TransactionsPage --> TransactionList
+AnalyticsPage --> AnalyticsOverview
+BudgetsPage --> BudgetList
+ReportsPage --> MonthlyReport
+NotificationsPage --> NotificationList
+SettingsPage --> SettingsSection
+ImportPage --> FileUpload
+DashboardPage --> DashboardGrid
+
+ChartsSection --> BalanceChart
+
+' =========================
+' SERVICES
+' =========================
+package "services" {
+    component API as "api.js"
+    component authService
+    component accountsService
+    component transactionsService
+    component analyticsService
+    component budgetsService
+    component categoriesService
+    component reportsService
+    component notificationsService
+    component settingsService
+    component searchService
+    component ingestionService
+    component userService
+}
+
+AuthContext --> authService
+DataContext --> accountsService
+DataContext --> transactionsService
+DataContext --> analyticsService
+SettingsContext --> settingsService
+
+authService --> API
+accountsService --> API
+transactionsService --> API
+
+' =========================
+' HOOKS
+' =========================
+package "hooks" {
+    component useAccounts
+    component useTransactions
+    component useAnalytics
+    component useBudgets
+    component useDashboard
+    component useNotifications
+    component useSearch
+}
+
+' =========================
+' UTILITIES
+' =========================
+package "utils" {
+    component currencyUtils
+    component dateUtils
+    component chartUtils
+    component validationUtils
+}
+
+' =========================
+' CONSTANTS
+' =========================
+package "constants" {
+    component apiRoutes
+    component chartConfig
+}
+
+' =========================
+' STYLES
+' =========================
+package "styles" {
+    component layoutCSS as "layout.css"
+    component dashboardCSS as "dashboard.css"
+    component chartsCSS as "charts.css"
+}
+
+@enduml
