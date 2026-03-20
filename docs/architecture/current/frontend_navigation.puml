@@ -1,0 +1,15 @@
+@startuml
+title FinPlan Navigation Flow
+
+actor User
+
+User --> [Login Page]
+[Login Page] --> [Dashboard Page]
+
+[Dashboard Page] --> [Accounts Page]
+[Dashboard Page] --> [Transactions Page]
+[Dashboard Page] --> [Analytics Page]
+[Dashboard Page] --> [Upload Page]
+[Dashboard Page] --> [Settings Page]
+
+@enduml

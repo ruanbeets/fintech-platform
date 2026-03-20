@@ -1,0 +1,54 @@
+@startuml
+title FinPlan UI Structure
+
+actor User
+
+package "Frontend UI" {
+
+  package "Layout" {
+    [Sidebar]
+    [TopBar]
+  }
+
+  package "Pages" {
+
+    [Login Page]
+
+    package "Main App" {
+      [Dashboard Page]
+
+      package "Financial" {
+        [Accounts Page]
+        [Transactions Page]
+        [Analytics Page]
+      }
+
+      [Upload Page]
+      [Settings Page]
+    }
+  }
+}
+
+User --> [Login Page]
+[Login Page] --> [Dashboard Page]
+
+' Layout composition (no arrows crossing)
+[Dashboard Page] --> [Sidebar]
+[Dashboard Page] --> [TopBar]
+
+[Accounts Page] --> [Sidebar]
+[Accounts Page] --> [TopBar]
+
+[Transactions Page] --> [Sidebar]
+[Transactions Page] --> [TopBar]
+
+[Analytics Page] --> [Sidebar]
+[Analytics Page] --> [TopBar]
+
+[Upload Page] --> [Sidebar]
+[Upload Page] --> [TopBar]
+
+[Settings Page] --> [Sidebar]
+[Settings Page] --> [TopBar]
+
+@enduml

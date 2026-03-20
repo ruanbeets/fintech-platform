@@ -1,0 +1,88 @@
+@startuml
+title FinPlan Backend (Strict MVVM - Vertical)
+
+top to bottom direction
+skinparam packageStyle rectangle
+
+' =========================
+' DATABASE
+' =========================
+database "PostgreSQL"
+
+' =========================
+' ENTRYPOINT
+' =========================
+[main.py]
+
+' =========================
+' VIEW
+' =========================
+package "View (API)" {
+  [auth_view.py]
+  [users_view.py]
+  [accounts_view.py]
+  [transactions_view.py]
+  [dashboard_view.py]
+  [settings_view.py]
+}
+
+' =========================
+' VIEWMODEL
+' =========================
+package "ViewModel" {
+  [auth_vm.py]
+  [users_vm.py]
+  [accounts_vm.py]
+  [transactions_vm.py]
+  [dashboard_vm.py]
+  [settings_vm.py]
+}
+
+' =========================
+' MODEL
+' =========================
+package "Model" {
+  [user.py]
+  [account.py]
+  [transaction.py]
+}
+
+' =========================
+' CORE
+' =========================
+package "Core" {
+  [security.py]
+  [config.py]
+}
+
+' =========================
+' FLOW
+' =========================
+
+' Vertical layering
+[main.py] --> [auth_view.py]
+[main.py] --> [users_view.py]
+[main.py] --> [accounts_view.py]
+[main.py] --> [transactions_view.py]
+[main.py] --> [dashboard_view.py]
+[main.py] --> [settings_view.py]
+
+' View ↔ ViewModel
+[auth_view.py] <--> [auth_vm.py]
+[users_view.py] <--> [users_vm.py]
+[accounts_view.py] <--> [accounts_vm.py]
+[transactions_view.py] <--> [transactions_vm.py]
+[dashboard_view.py] <--> [dashboard_vm.py]
+[settings_view.py] <--> [settings_vm.py]
+
+' ViewModel → Model
+[users_vm.py] --> [user.py]
+[accounts_vm.py] --> [account.py]
+[transactions_vm.py] --> [transaction.py]
+
+' Model → DB
+[user.py] --> PostgreSQL
+[account.py] --> PostgreSQL
+[transaction.py] --> PostgreSQL
+
+@enduml

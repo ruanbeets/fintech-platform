@@ -31,3 +31,5 @@ python-jose
 passlib[bcrypt]
 pydantic-settings
 email-validator
+bcrypt==3.2.2
+pydantic-settings

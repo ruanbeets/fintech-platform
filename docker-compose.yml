@@ -1,13 +1,15 @@
+version: "3.9"
+
 services:
 
   db:
     image: postgres:15
-    container_name: fintech_db
+    container_name: finplan_db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: fintech
+      POSTGRES_DB: finplan
     ports:
       - "5432:5432"
     volumes:
@@ -15,12 +17,12 @@ services:
 
   backend:
     build: ./backend
-    container_name: fintech_backend
+    container_name: finplan_backend
     restart: always
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/fintech
+      DATABASE_URL: postgresql://postgres:password@db:5432/finplan
       FRONTEND_URLS: http://localhost:3000
     ports:
       - "8000:8000"
@@ -29,7 +31,7 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: fintech_frontend
+    container_name: finplan_frontend
     restart: always
     depends_on:
       - backend

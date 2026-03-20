@@ -1,0 +1,80 @@
+@startuml
+title FinPlan Data Flow Architecture
+
+top to bottom direction
+
+package "UI Layer" {
+  [Login Page]
+  [Dashboard Page]
+  [Accounts Page]
+  [Transactions Page]
+  [Analytics Page]
+  [Upload Page]
+  [Settings Page]
+}
+
+package "Hooks Layer" {
+  [useAuth]
+  [useDashboard]
+  [useAccounts]
+  [useTransactions]
+  [useAnalytics]
+  [useUpload]
+  [useSettings]
+}
+
+package "API Layer" {
+  [auth.api]
+  [dashboard.api]
+  [accounts.api]
+  [transactions.api]
+  [analytics.api]
+  [ingestion.api]
+  [settings.api]
+}
+
+package "Core" {
+  [apiClient]
+  [queryClient]
+  [authStore]
+}
+
+package "Backend" {
+  [REST API]
+}
+
+' STRAIGHT VERTICAL FLOW
+
+[Login Page] --> [useAuth]
+[Dashboard Page] --> [useDashboard]
+[Accounts Page] --> [useAccounts]
+[Transactions Page] --> [useTransactions]
+[Analytics Page] --> [useAnalytics]
+[Upload Page] --> [useUpload]
+[Settings Page] --> [useSettings]
+
+[useAuth] --> [auth.api]
+[useDashboard] --> [dashboard.api]
+[useAccounts] --> [accounts.api]
+[useTransactions] --> [transactions.api]
+[useAnalytics] --> [analytics.api]
+[useUpload] --> [ingestion.api]
+[useSettings] --> [settings.api]
+
+[auth.api] --> [apiClient]
+[dashboard.api] --> [apiClient]
+[accounts.api] --> [apiClient]
+[transactions.api] --> [apiClient]
+[analytics.api] --> [apiClient]
+[ingestion.api] --> [apiClient]
+[settings.api] --> [apiClient]
+
+[apiClient] --> [REST API]
+
+' STATE (side connections, minimal)
+[useAuth] --> [authStore]
+[useDashboard] --> [queryClient]
+[useTransactions] --> [queryClient]
+[useAnalytics] --> [queryClient]
+
+@enduml

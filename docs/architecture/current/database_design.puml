@@ -1,0 +1,101 @@
+@startuml
+title FinPlan Final Database Schema (Lean + Analytics Ready)
+
+top to bottom direction
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+' =========================
+' CORE TABLES
+' =========================
+
+entity "users" as users {
+  + id : UUID (PK)
+  --
+  email : TEXT (UNIQUE)
+  password_hash : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "user_settings" as settings {
+  + user_id : UUID (PK, FK)
+  --
+  settings : JSONB
+  updated_at : TIMESTAMP
+}
+
+entity "accounts" as accounts {
+  + id : UUID (PK)
+  --
+  user_id : UUID (FK)
+  name : TEXT
+  type : (bank | card | cash | crypto | investment)
+  currency : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "transactions" as transactions {
+  + id : UUID (PK)
+  --
+  user_id : UUID (FK)
+  account_id : UUID (FK)
+
+  amount : NUMERIC(14,2)
+  type : (income | expense | transfer)
+
+  category : TEXT
+  merchant : TEXT
+  description : TEXT
+
+  source : TEXT              ' manual | api | import
+  external_id : TEXT         ' for deduplication
+
+  currency : TEXT
+
+  occurred_at : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+' =========================
+' OPTIONAL (FUTURE FLEXIBILITY)
+' =========================
+
+entity "categories (optional)" as categories {
+  + id : UUID (PK)
+  --
+  user_id : UUID (FK)
+  name : TEXT
+}
+
+' =========================
+' DERIVED (NOT STORED)
+' =========================
+
+entity "account_balance (derived)" as balance {
+  account_id : UUID
+  balance : NUMERIC
+}
+
+entity "monthly_summary (MV)" as summary {
+  user_id : UUID
+  month : DATE
+  income : NUMERIC
+  expense : NUMERIC
+}
+
+' =========================
+' RELATIONSHIPS
+' =========================
+
+users ||--|| settings
+users ||--o{ accounts
+users ||--o{ transactions
+
+accounts ||--o{ transactions
+
+users ||--o{ categories
+
+transactions ||--o{ balance
+transactions ||--o{ summary
+
+@enduml

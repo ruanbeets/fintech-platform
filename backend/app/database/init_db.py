@@ -1,34 +1,9 @@
-from sqlalchemy.orm import Session
-
-from app.database.session import engine
 from app.database.base import Base
+from app.database.connection import engine
 
-from app.models.category import Category
+# IMPORTANT: import models so SQLAlchemy registers them
+from app.models import user, account, transaction
 
 
 def init_db():
-
     Base.metadata.create_all(bind=engine)
-
-
-def seed_categories(db: Session):
-
-    default_categories = [
-        "Food",
-        "Transport",
-        "Rent",
-        "Utilities",
-        "Entertainment",
-        "Healthcare",
-        "Shopping",
-        "Income",
-        "Other",
-    ]
-
-    for name in default_categories:
-
-        category = Category(name=name)
-
-        db.add(category)
-
-    db.commit()
