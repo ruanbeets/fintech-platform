@@ -1,0 +1,7 @@
+# Preserve binary fixtures and portfolio screenshots byte-for-byte.
+*.pdf binary
+*.png binary
+*.xlsx binary
+*.xls binary
+*.xlsb binary
+*.ods binary

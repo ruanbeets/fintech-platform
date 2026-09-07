@@ -23,22 +23,35 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
+const EntryRoute = () => {
+  const token = useAuthStore((state) => state.token);
+  return token ? <DashboardPage /> : <UploadPage />;
+};
+
 export const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/demo" element={<DashboardPage demo />} />
+        <Route path="/demo/trends" element={<AnalyticsPage demo />} />
+        <Route path="/import" element={<UploadPage />} />
+        <Route path="/workspace" element={<DashboardPage imported />} />
+        <Route path="/workspace/trends" element={<AnalyticsPage imported />} />
+        <Route path="/trends" element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
 
         {/* Protected */}
         <Route
-          path="/"
+          path="/app"
           element={
             <PrivateRoute>
               <DashboardPage />
             </PrivateRoute>
           }
         />
+
+        <Route path="/" element={<EntryRoute />} />
 
         <Route
           path="/accounts"

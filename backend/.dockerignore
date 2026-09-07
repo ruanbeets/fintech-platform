@@ -1,9 +1,13 @@
+.env
+.env.*
+!.env.example
+.demo
 __pycache__
 *.pyc
 *.pyo
 *.pyd
-.env
 .venv
+venv
 .git
 .gitignore
 tests

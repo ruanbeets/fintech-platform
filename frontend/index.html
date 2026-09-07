@@ -1,13 +1,46 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
+    <!-- Core -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+
+    <!-- App Identity -->
+    <title>FinTrack</title>
+    <meta name="description" content="FinTrack - Personal Financial Intelligence" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Fonts (Stitch requirement) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons (Material Symbols) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+
+    <!-- Theme Color (for mobile UI) -->
+    <meta name="theme-color" content="#060e20" />
+
+    <!-- Future Expansion Hooks -->
+    <!--
+      Add here later:
+      - Open Graph tags (sharing)
+      - Analytics (e.g. Plausible, GA)
+      - CSP security headers
+    -->
   </head>
+
   <body>
+    <!-- React Mount -->
     <div id="root"></div>
+
+    <!-- App Entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

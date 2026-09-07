@@ -124,3 +124,8 @@ app.include_router(accounts_view.router)
 app.include_router(transactions_view.router)
 app.include_router(dashboard_view.router)
 app.include_router(settings_view.router)
+
+# The public demo never registers legacy user-ID CRUD/auth endpoints.
+if settings.demo_mode:
+    from app.demo_app import create_demo_app
+    app = create_demo_app()

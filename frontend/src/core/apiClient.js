@@ -2,9 +2,10 @@
 
 import axios from "axios";
 import { useAuthStore } from "./authStore";
+import { apiBaseURL } from "./apiBase";
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  baseURL: apiBaseURL,
 });
 
 // Attach token to every request

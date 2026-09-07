@@ -1,5 +1,127 @@
-/* src/index.css or src/styles/globals.css */
+@import "tailwindcss";
+@config "../../tailwind.config.js";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Base background (matches Stitch exactly) */
+body {
+  background-color: #060e20;
+  color: #dae2fd;
+  font-family: "Inter", sans-serif;
+  min-height: 100vh;
+
+  background-image:
+    radial-gradient(at 0% 0%, rgba(0, 209, 255, 0.08), transparent 40%),
+    radial-gradient(at 100% 100%, rgba(78, 222, 163, 0.08), transparent 40%);
+}
+
+/* Icon font */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400;
+}
+
+/* Glass card (core of design) */
+.glass-card {
+  background: rgba(23, 31, 51, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 32px 64px -16px rgba(0,0,0,0.4);
+  border-radius: 24px;
+}
+
+/* FinTrack overview: reuses the existing dark navy, cyan and mint palette. */
+.ft-page-nav { display: flex; gap: 24px; margin: -12px 0 28px; font-size: 13px; }
+.ft-page-nav a { color: #91a3b9; padding: 8px 0; text-decoration: none; border-bottom: 2px solid transparent; }
+.ft-page-nav a[aria-current="page"] { color: #4cd6ff; border-color: #4cd6ff; }
+.ft-income-comparisons { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; margin: 24px 0; padding: 18px 0; border-top: 1px solid #bbc9cf18; }
+.ft-income-comparisons span,.ft-income-comparisons small { display: block; color: #a1b0c6; font-size: 11px; line-height: 1.6; }
+.ft-income-comparisons strong { display: block; font: 600 22px Manrope,sans-serif; margin: 10px 0; }
+.ft-category-control { margin: 20px 0; }.ft-trend-chart { margin: 20px 0 8px; }
+.ft-spending-classes { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 25px; margin: 24px 0; }
+.ft-spending-classes article { border-left: 2px solid #4cd6ff55; padding-left: 18px; }
+.ft-spending-classes article > p:first-child { text-transform: uppercase; letter-spacing: .08em; font-size: 11px; color: #bbc9cf; }
+.ft-spending-classes h3 { font: 600 27px Manrope,sans-serif; margin: 12px 0; }
+.ft-spending-classes strong { font-size: 12px; color: #4edea3; }
+.ft-rule-text { white-space: normal; width: 220px; text-align: left; line-height: 1.7; color: #a1b0c6; padding: 8px 0; }
+.ft-table-scroll summary { cursor: pointer; }
+@media(max-width:900px) { .ft-income-comparisons { grid-template-columns: repeat(2,minmax(0,1fr)); }.ft-spending-classes { grid-template-columns: 1fr; gap: 14px; } }
+.demo-entry { display: block; margin-bottom: 24px; text-align: center; color: #4cd6ff; padding: 14px; border: 1px solid #4cd6ff40; border-radius: 12px; }
+.ft-app { font-family: Inter, sans-serif; color: #dae2fd; min-height: 100vh; }
+.ft-topbar { min-height: 86px; border-bottom: 1px solid #bbc9cf18; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px max(32px, calc((100vw - 1280px) / 2)); }
+.ft-brand { display: flex; align-items: center; gap: 12px; font: 800 22px Manrope, sans-serif; text-decoration: none; color: #eef4ff; }
+.ft-brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: #061321; background: linear-gradient(135deg,#4cd6ff,#4edea3); font-size: 23px; }
+.ft-brand-divider { color: #536178; margin: 0 9px; font-weight: 400; }
+.ft-brand-sub { font: 400 12px Inter,sans-serif; color: #94a6bd; }
+.ft-demo-badge,.ft-mini-badge { font-size: 10px; font-weight: 600; letter-spacing: .09em; color: #a7b7cf; border: 1px solid #a7b7cf25; padding: 7px 10px; border-radius: 6px; white-space: nowrap; }
+.ft-demo-badge { color: #4cd6ff; background: #4cd6ff09; border-color: #4cd6ff35; }
+.ft-main { max-width: 1280px; margin: 0 auto; padding: 46px 0 30px; }
+.ft-heading,.ft-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.ft-heading { align-items: flex-end; margin-bottom: 26px; }
+.ft-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .18em; color: #8ea4bc; margin: 0 0 9px; }
+.ft-heading h1 { font: 700 44px/1.15 Manrope,sans-serif; letter-spacing: -.045em; margin: 0 0 12px; }
+.ft-heading h1 span { color: #4cd6ff; }
+.ft-subtitle,.ft-muted { color: #a1b0c6; font-size: 12px; line-height: 1.7; }
+.ft-subtitle { font-size: 14px; margin: 0; }
+.ft-controls { display: flex; gap: 12px; }
+.ft-controls label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #a1b0c6; display: grid; gap: 8px; }
+.ft-controls select { padding: 12px 34px 12px 14px; min-height: 43px; border-radius: 8px; border: 1px solid #a1b0c633; background: #131b2e; color: #e5ebfb; font: 500 12px Inter,sans-serif; }
+.ft-app :is(a,button,select,summary):focus-visible { outline: 2px solid #4cd6ff; outline-offset: 4px; }
+.ft-period { display: flex; gap: 9px; align-items: center; color: #dae2fd; font-size: 12px; margin: 22px 0 18px; flex-wrap: wrap; }
+.ft-period > span:last-child { color: #8ea4bc; margin-left: auto; }
+.ft-status-dot { width: 6px; height: 6px; border-radius: 100%; background: #4edea3; }
+.ft-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-bottom: 22px; }
+.ft-metric,.ft-panel { background: linear-gradient(120deg,#171f33c9,#131b2ecc); border: 1px solid #bbc9cf14; border-radius: 14px; padding: 24px; }
+.ft-metric p { display: flex; align-items: center; justify-content: space-between; color: #bbc9cf; font-size: 12px; margin: 0 0 20px; }
+.ft-metric p span { color: #8ea4bc; font-size: 16px; }
+.ft-metric h2 { margin: 0 0 13px; font: 700 clamp(21px,2.1vw,30px)/1.2 Manrope,sans-serif; letter-spacing: -.04em; white-space: nowrap; }
+.ft-metric small { font-size: 10px; line-height: 1.5; color: #91a3b9; display: block; }
+.ft-metric.net { border-color: #4edea33a; background: linear-gradient(120deg,#4edea30d,#131b2e); }
+.ft-metric.net h2,.ft-green { color: #4edea3; }
+.ft-section-heading h2 { font: 600 16px Manrope,sans-serif; margin: 0; }
+.ft-range { font-size: 10px; letter-spacing: .05em; color: #94a6bd; }
+.ft-history { padding: 26px 28px 14px; margin-bottom: 20px; }
+.ft-legend { display: flex; gap: 22px; color: #aebcd0; font-size: 11px; margin: 20px 0 8px; }
+.ft-legend span { display: flex; align-items: center; gap: 7px; }
+.ft-legend i { width: 8px; height: 8px; border-radius: 2px; }
+.ft-legend .income { background: #4cd6ff; }.ft-legend .expenses { background: #617396; }.ft-legend .net { background: #4edea3; border-radius: 50%; }
+.ft-chart svg { display: block; width: 100%; max-height: 280px; overflow: visible; }
+.ft-gridline { stroke: #a1b0c618; stroke-dasharray: 3 4; }.ft-axis { fill: #91a3b9; font: 11px Inter,sans-serif; }
+.ft-income-bar { fill: #4cd6ff; opacity: .85; }.ft-expense-bar { fill: #617396; opacity: .85; }
+.ft-net-line { fill: none; stroke: #4edea3; stroke-width: 2; }.ft-net-dot { fill: #131b2e; stroke: #4edea3; stroke-width: 2; }
+.ft-table-details { border-top: 1px solid #bbc9cf14; margin-top: 14px; padding: 12px 0 0; }
+.ft-table-details summary { font-size: 11px; color: #bbc9cf; cursor: pointer; padding: 3px 0; }
+.ft-table-scroll { overflow-x: auto; }.ft-table-scroll table { border-collapse: collapse; width: 100%; font-size: 11px; text-align: right; margin: 14px 0; }
+.ft-table-scroll caption { text-align: left; padding-bottom: 10px; color: #91a3b9; }.ft-table-scroll th,.ft-table-scroll td { padding: 11px 8px; border-bottom: 1px solid #bbc9cf14; white-space: nowrap; }.ft-table-scroll th:first-child { text-align: left; }
+.ft-rolling,.ft-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.ft-average-values { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 22px 0; }
+.ft-average-values dt { color: #91a3b9; font-size: 11px; margin-bottom: 9px; }.ft-average-values dd { margin: 0; font: 600 19px Manrope,sans-serif; letter-spacing: -.025em; }
+.ft-rolling small { display: block; font-size: 10px; }.ft-account-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; font-size: 12px; border-bottom: 1px solid #bbc9cf14; }
+.ft-account-row > span { display: flex; align-items: center; gap: 10px; }.ft-account-row i { font-style: normal; color: #4cd6ff; }.ft-account-row small { color: #91a3b9; font-size: 10px; }.ft-account-row strong { font-size: 11px; color: #91a3b9; font-weight: 400; }
+.ft-explanation { font-size: 11px; margin-bottom: 0; }.ft-unavailable { font: 600 23px Manrope,sans-serif; margin: 22px 0 12px; color: #bbc9cf; }.ft-principle { font-size: 11px; color: #91a3b9; padding-top: 20px; margin-top: 20px; border-top: 1px solid #bbc9cf14; }
+.ft-footnote { color: #8498b0; font-size: 11px; line-height: 1.75; padding: 10px 2px; }.ft-footnote strong { color: #aebcd0; font-weight: 500; }.ft-footnote p { margin: 5px 0; }
+.ft-state { padding: 60px 30px; text-align: center; background: #171f33; border-radius: 16px; color: #bbc9cf; }.ft-state h2 { font-size: 22px; margin: 12px; }.ft-state p { font-size: 14px; margin: 12px; }.ft-state button { color: #061321; background: #4cd6ff; padding: 12px 20px; border: 0; border-radius: 8px; cursor: pointer; margin-top: 15px; }.ft-error { border: 1px solid #e8a48060; }.ft-empty { padding: 16px 20px; color: #bbc9cf; background: #4cd6ff0a; border: 1px solid #4cd6ff25; border-radius: 10px; font-size: 12px; line-height: 1.7; margin-bottom: 18px; }.ft-skeleton { width: 40%; height: 10px; margin: 0 auto 24px; border-radius: 5px; background: linear-gradient(90deg,#4cd6ff30,#4cd6ff80); }
+@media(max-width:1344px) { .ft-main { padding: 36px 32px 24px; } }
+@media(max-width:1000px) { .ft-brand-sub,.ft-brand-divider { display: none; }.ft-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }.ft-average-values dd { font-size: 16px; }.ft-section-heading { flex-wrap: wrap; } }
+@media(max-width:700px) { .ft-topbar { padding: 16px 20px; min-height: 72px; }.ft-demo-badge { font-size: 8px; padding: 7px; }.ft-brand { font-size: 19px; }.ft-main { padding: 28px 18px; }.ft-heading { align-items: flex-start; flex-direction: column; gap: 22px; }.ft-heading h1 { font-size: 36px; }.ft-controls { width: 100%; }.ft-controls label:first-child { flex: 1; }.ft-controls select { width: 100%; }.ft-period > span:last-child { margin-left: 0; width: 100%; }.ft-metrics { gap: 10px; }.ft-metric { padding: 18px 14px; }.ft-metric h2 { font-size: 22px; }.ft-metric small { font-size: 9px; }.ft-metric p { margin-bottom: 15px; }.ft-rolling,.ft-bottom-grid { grid-template-columns: 1fr; gap: 14px; }.ft-panel { padding: 20px; }.ft-chart { overflow-x: auto; }.ft-chart svg { min-width: 620px; }.ft-average-values dd { font-size: 18px; }.ft-range { line-height: 1.7; }.ft-state { padding: 35px 16px; } }
+
+/* Reviewed import flow, using the existing FinTrack palette. */
+.ft-import .ft-panel { margin-bottom: 20px; }
+.ft-import h2 { font: 600 19px Manrope,sans-serif; margin: 0 0 18px; }
+.ft-import-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:18px 0; }
+.ft-import button,.ft-import-link { border:1px solid #4cd6ff55; border-radius:8px; padding:12px 18px; color:#e5ebfb; background:#4cd6ff16; cursor:pointer; font:500 13px Inter,sans-serif; }
+.ft-import button:disabled { opacity:.45; cursor:not-allowed; }
+.ft-import button:hover:not(:disabled) { background:#4cd6ff30; }
+.ft-import-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:20px 0; align-items:end; }
+.ft-import label { display:grid; gap:8px; font-size:13px; color:#d3dff0; }
+.ft-import label small,.ft-import label .ft-muted { font-size:11px; }
+.ft-import :is(select,input:not([type=checkbox])) { min-height:42px; background:#101829; color:#e5ebfb; border:1px solid #94a6bd44; border-radius:7px; padding:9px 12px; min-width:0; width:100%; }
+.ft-import .ft-file-input { display:none; }
+.ft-import-fieldset { border:0; padding:0; margin:0; min-width:0; }
+.ft-import-counts { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin:22px 0; }
+.ft-import-counts div { display:grid; gap:8px; color:#94a6bd; font-size:12px; }
+.ft-import-counts strong { color:#4cd6ff; font-size:26px; }
+.ft-import .ft-check { display:flex; align-items:center; margin:18px 0; line-height:1.7; }
+.ft-import .ft-check input { width:18px; height:18px; flex-shrink:0; accent-color:#4cd6ff; }
+.ft-import .ft-table-scroll td { text-align:left; white-space:normal; min-width:80px; max-width:280px; overflow-wrap:anywhere; }
+.ft-import .ft-table-scroll th { text-align:left; }
+.ft-import .ft-table-scroll select { min-width:110px; }
+.ft-page-nav { flex-wrap:wrap; }
+@media(max-width:800px) { .ft-import-grid { grid-template-columns:1fr; }.ft-import-counts { grid-template-columns:repeat(3,1fr); } }

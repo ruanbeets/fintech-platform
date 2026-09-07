@@ -1,0 +1,6 @@
+Date,Description,Amount,Category,Type
+2026-08-01,Synthetic salary,1000.00,Salary,income
+2026-08-02,Synthetic groceries,-200.00,Groceries,expense
+2026-08-03,Synthetic cafe,-50.00,Dining,expense
+2026-08-04,Synthetic savings movement,-100.00,,transfer
+2026-08-02,Synthetic groceries,-200.00,Groceries,expense
