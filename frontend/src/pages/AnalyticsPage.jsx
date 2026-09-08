@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuthStore } from "../core/authStore";
 import { useDashboard } from "../features/dashboard";
@@ -22,7 +23,7 @@ export default function AnalyticsPage({ demo = false, imported = false }) {
   return <div className="ft-app">
     <header className="ft-topbar"><a className="ft-brand" href={imported ? "/workspace" : demo ? "/demo" : "/app"}><span className="ft-brand-mark">F</span>FinTrack<span className="ft-brand-divider">/</span><span className="ft-brand-sub">Personal financial intelligence</span></a><span className="ft-demo-badge">{imported ? "PRIVATE DEMO SESSION · IMPORTED DATA" : demo ? "SYNTHETIC SAMPLE DATA" : "RECORDED FINANCES"}</span></header>
     <main className="ft-main">
-      <nav className="ft-page-nav" aria-label="Financial views"><a href={imported ? "/workspace" : demo ? "/demo" : "/app"}>Overview</a><a href={imported ? "/workspace/trends" : demo ? "/demo/trends" : "/trends"} aria-current="page">Trends</a><a href="/import">Import data</a></nav>
+      <nav className="ft-page-nav" aria-label="Financial views"><Link to={imported ? "/workspace" : demo ? "/demo" : "/app"}>Overview</Link><Link to={imported ? "/workspace/trends" : demo ? "/demo/trends" : "/trends"} aria-current="page">Trends</Link><Link to="/import">Import data</Link></nav>
       <div className="ft-heading"><div><p className="ft-eyebrow">FINANCIAL BEHAVIOUR</p><h1>What is changing<span>?</span></h1><p className="ft-subtitle">Follow your income, spending patterns and likely repeat costs.</p></div>
         {data && <div className="ft-controls"><label>Month<select value={month || data.selected_month} onChange={(e) => setMonth(e.target.value)}>{data.available_months.map((m) => <option key={m} value={m}>{monthName(m)}</option>)}</select></label>
           <label>Currency<select value={currency || data.currency} onChange={(e) => { setCurrency(e.target.value); setMonth(""); }}>{(data.available_currencies.length ? data.available_currencies : [data.currency]).map((c) => <option key={c}>{c}</option>)}</select></label></div>}

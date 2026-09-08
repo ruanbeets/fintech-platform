@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuthStore } from "../core/authStore";
 import { useDashboard } from "../features/dashboard";
@@ -23,7 +24,7 @@ export default function DashboardPage({ demo = false, imported = false }) {
         <span className="ft-demo-badge">{imported ? "PRIVATE DEMO SESSION · IMPORTED DATA" : demo ? "SYNTHETIC SAMPLE DATA" : "RECORDED FINANCES"}</span>
       </header>
       <main className="ft-main">
-        <nav className="ft-page-nav" aria-label="Financial views"><a href={imported ? "/workspace" : demo ? "/demo" : "/app"} aria-current="page">Overview</a><a href={imported ? "/workspace/trends" : demo ? "/demo/trends" : "/trends"}>Trends</a><a href="/import">Import data</a></nav>
+        <nav className="ft-page-nav" aria-label="Financial views"><Link to={imported ? "/workspace" : demo ? "/demo" : "/app"} aria-current="page">Overview</Link><Link to={imported ? "/workspace/trends" : demo ? "/demo/trends" : "/trends"}>Trends</Link><Link to="/import">Import data</Link></nav>
         <div className="ft-heading">
           <div><p className="ft-eyebrow">YOUR FINANCIAL PICTURE</p><h1>Overview<span>.</span></h1>
             <p className="ft-subtitle">Understand your cash flow. See the longer view.</p></div>

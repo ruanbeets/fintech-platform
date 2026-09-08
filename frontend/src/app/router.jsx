@@ -23,11 +23,6 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-const EntryRoute = () => {
-  const token = useAuthStore((state) => state.token);
-  return token ? <DashboardPage /> : <UploadPage />;
-};
-
 export const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -51,7 +46,7 @@ export const AppRouter = () => {
           }
         />
 
-        <Route path="/" element={<EntryRoute />} />
+        <Route path="/" element={<UploadPage />} />
 
         <Route
           path="/accounts"
