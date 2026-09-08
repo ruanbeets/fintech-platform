@@ -1,0 +1,8 @@
+Date,Description,Money In,Money Out,Fee,Balance,Parent Category,Category,Harmless Extra
+2026-08-01,Synthetic salary,3000.00,,,4000.00,Income,Salary,ignored
+2026-08-02,Synthetic groceries,,-500.00,,3500.00,Living,Groceries,ignored
+2026-08-03,Synthetic bank charge,,,-3.00,3497.00,Banking,Bank fees,ignored
+2026-08-04,Synthetic incoming transfer,200.00,,,3697.00,Transfers,Savings,ignored
+2026-08-05,Synthetic savings transfer,,-400.00,,3297.00,Savings,Transfer,ignored
+2026-08-06,Synthetic cafe,,-25.00,,3272.00,Living,Dining,ignored
+2026-08-06,Synthetic cafe,,-25.00,,3247.00,Living,Dining,ignored

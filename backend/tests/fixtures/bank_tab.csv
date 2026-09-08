@@ -1,0 +1,9 @@
+Synthetic personal statement — no real financial data
+Nr	Account	Posting Date	Transaction Date	Description	Original Description	Parent Category	Category	Money In	Money Out	Fee	Balance
+1	0000123400	2026-08-01	2026-07-31	Synthetic salary	PAYROLL SYNTHETIC	Income	Salary	3000.00			4000.00
+2	0000123400	2026-08-02	2026-08-01	Synthetic groceries	GROCER SYNTHETIC	Living	Groceries		-500.00		3500.00
+3	0000123400	2026-08-03	2026-08-03	Synthetic bank charge	FEE SYNTHETIC	Banking	Bank fees			-3.00	3497.00
+4	0000123400	2026-08-04	2026-08-04	Synthetic incoming transfer	OWN ACCOUNT	Transfers	Savings	200.00			3697.00
+5	0000123400	2026-08-05	2026-08-05	Synthetic savings transfer	OWN ACCOUNT	Savings	Transfer		-400.00		3297.00
+6	0000123400	2026-08-06	2026-08-06	Synthetic cafe	CAFE SYNTHETIC	Living	Dining		-25.00		3272.00
+7	0000123400	2026-08-06	2026-08-06	Synthetic cafe	CAFE SYNTHETIC	Living	Dining		-25.00		3247.00

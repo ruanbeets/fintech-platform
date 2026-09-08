@@ -165,14 +165,15 @@ class ImportAPITests(DatabaseCase):
 
     def test_duplicates_and_confirm_idempotency(self):
         first = self.review(self.upload("duplicates.csv")).json()
-        self.assertEqual((first["duplicates"], first["to_import"]), (1, 4))
-        self.assertEqual(self.confirm(first).json()["imported"], 4)
-        self.assertEqual(self.confirm(first).json()["imported"], 4)
+        # No reference/balance proves the repeated purchase is a duplicate.
+        self.assertEqual((first["duplicates"], first["to_import"]), (0, 5))
+        self.assertEqual(self.confirm(first).json()["imported"], 5)
+        self.assertEqual(self.confirm(first).json()["imported"], 5)
         second = self.review(self.upload("standard.csv")).json()
         self.assertEqual((second["duplicates"], second["to_import"]), (4, 0))
         self.assertEqual(self.confirm(second).json()["imported"], 0)
         with self.sessions() as db:
-            self.assertEqual(db.query(Transaction).count(), 4)
+            self.assertEqual(db.query(Transaction).count(), 5)
             batch = db.get(ImportBatch, __import__("uuid").UUID(first["batch_id"]))
             self.assertIsNone(batch.tables)
             self.assertIsNone(batch.review)

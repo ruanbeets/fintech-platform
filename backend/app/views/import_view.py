@@ -17,7 +17,9 @@ from app.schemas.imports import ReviewRequest, ReviewResponse, ConfirmRequest, C
 from app.schemas.imports import DetectionResponse, SessionResponse
 from app.schemas.dashboard import DashboardSummary
 from app.services.file_parser import parse_bounded, detect_header, detect_mapping, MAX_BYTES
-from app.services.import_normalization import normalize_rows, fingerprint
+from app.services.import_normalization import normalize_rows, fingerprint, amount_model, apply_duplicates
+from app.services.import_reconciliation import reconcile
+from app.services.import_detection import suggestions
 from app.services.import_sessions import create_session, require_session, delete_session, cleanup_expired
 from app.viewmodels.dashboard_vm import DashboardViewModel
 
@@ -47,9 +49,14 @@ def detection(batch, sheet, header=None):
     if header > len(rows):
         raise HTTPException(422, "Header row is outside this sheet.")
     headers = rows[header - 1]
+    mapping = detect_mapping(headers)
+    defaults, high = suggestions(rows, header, mapping)
+    # Keep source identifiers as strings internally, but omit them from previews.
+    sensitive = mapping["account"]["candidates"] + mapping["source_reference"]["candidates"]
+    preview = [["[account/reference hidden]" if i in sensitive else value for i, value in enumerate(row)] for row in rows[header:header+10]]
     return {"batch_id": str(batch.id), "file_type": batch.file_type, "sheets": list(batch.tables),
-            "sheet": sheet, "header_row": header, "headers": headers, "mapping": detect_mapping(headers),
-            "preview": rows[header:header + 10], "row_count": len(rows) - header}
+            "sheet": sheet, "header_row": header, "headers": headers, "mapping": mapping,
+            "preview": preview, "row_count": len(rows) - header, "defaults": defaults, "high_confidence": high}
 
 
 @router.post("/session", status_code=201, response_model=SessionResponse)
@@ -117,9 +124,11 @@ def review(batch_id: UUID, options: ReviewRequest, x_demo_session: str | None = 
             raise HTTPException(422, "Select a valid sheet and header row.")
         existing = {r[0] for r in db.query(ImportedTransaction.fingerprint).filter_by(session_id=session.id)}
         try:
-            normalized = normalize_rows(rows, options, batch.id, batch.source_file, existing)
+            normalized = normalize_rows(rows, options, batch.id, batch.source_file, existing, check_duplicates=False)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from None
+        reconciliation = reconcile(normalized)
+        apply_duplicates(normalized, existing)
         counts = {status: sum(r.status == status for r in normalized) for status in ["valid", "invalid", "duplicate", "excluded"]}
         income = sum((r.transaction.amount for r in normalized if r.status == "valid" and r.transaction.transaction_type == "income"), Decimal("0.00"))
         expenses = sum((r.transaction.amount for r in normalized if r.status == "valid" and r.transaction.transaction_type == "expense"), Decimal("0.00"))
@@ -128,7 +137,12 @@ def review(batch_id: UUID, options: ReviewRequest, x_demo_session: str | None = 
                                   duplicates=counts["duplicate"], excluded=counts["excluded"], to_import=counts["valid"],
                                   income=income, expenses=expenses, net_cash_flow=income-expenses,
                                   currency=options.currency, rows=normalized,
-                                  warning="Verify every classification, especially transfers. These totals cover only new rows. Statement balances are provenance, not account balances.")
+                                  warning="Verify classifications, especially transfers. Totals cover new rows. Repeated no-balance payments are retained; matches across uploads are possible duplicates and skipped. Balances verify statement movements, not account valuations.",
+                                  reconciliation=reconciliation,
+                                  amount_model={"signed": "SIGNED AMOUNT", "debit_credit": "DEBIT/CREDIT", "money_columns": "MONEY IN/MONEY OUT"}[amount_model(rows[options.header_row-1], options.mapping, options.amount_model, rows[options.header_row:])] + ("/FEE" if options.mapping.fee is not None else ""),
+                                  account_count=len({r.transaction.account for r in normalized if r.transaction}),
+                                  date_start=min((r.transaction.date.date().isoformat() for r in normalized if r.transaction), default=None),
+                                  date_end=max((r.transaction.date.date().isoformat() for r in normalized if r.transaction), default=None))
         batch.review = response.model_dump(mode="json")
         batch.review_id = response.review_id
         return response
@@ -151,6 +165,7 @@ def confirm(batch_id: UUID, options: ConfirmRequest, x_demo_session: str | None 
                 raise HTTPException(429, "Demo limit: 20,000 imported transactions per session.")
             existing = {r[0] for r in db.query(ImportedTransaction.fingerprint).filter_by(session_id=session.id)}
             imported, duplicates = 0, reviewed.duplicates
+            committed_rows = []
             for item in reviewed.rows:
                 if item.status != "valid":
                     continue
@@ -172,12 +187,17 @@ def confirm(batch_id: UUID, options: ConfirmRequest, x_demo_session: str | None 
                                           fingerprint=key, source_row=row.source_row,
                                           balance_optional=str(row.balance_optional) if row.balance_optional is not None else None))
                 existing.add(key)
+                committed_rows.append(row.model_dump(mode="json"))
                 imported += 1
             result = ConfirmResponse(batch_id=batch.id, imported=imported, duplicates=duplicates,
                                      skipped_invalid=reviewed.invalid, excluded=reviewed.excluded,
                                      message=f"{imported:,} transactions imported successfully.")
             batch.status, batch.tables, batch.review = "committed", None, None
             batch.result = result.model_dump(mode="json")
+            # Existing JSON provenance storage: no production schema migration required.
+            # Retained only until the owning demo session expires or is deleted.
+            batch.result["provenance"] = committed_rows
+            batch.result["reconciliation"] = reviewed.reconciliation.model_dump(mode="json")
             return result
     except IntegrityError:
         raise HTTPException(409, "Another import changed these rows. Validate again before confirming.") from None

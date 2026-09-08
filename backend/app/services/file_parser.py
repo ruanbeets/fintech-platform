@@ -15,14 +15,20 @@ MAX_ROWS = 5000
 MAX_COLUMNS = 50
 PDF_ERROR = "FinTrack cannot reliably read this scanned statement yet. Please export CSV/Excel or use a text-based PDF."
 ALIASES = {
-    "date": ["date", "transaction date", "posting date", "value date"],
-    "description": ["description", "details", "reference", "merchant", "payee", "narrative"],
+    "date": ["date", "posting date", "booking date", "posted date", "value date"],
+    "transaction_datetime": ["transaction date", "authorised date", "authorized date", "transaction datetime"],
+    "description": ["description", "details", "reference", "merchant", "payee", "narrative", "transaction description"],
+    "original_description": ["original description", "raw description", "bank description"],
     "amount": ["amount", "value", "transaction amount"],
-    "debit": ["debit", "money out", "withdrawal", "withdrawals", "spent"],
-    "credit": ["credit", "money in", "deposit", "deposits", "received"],
-    "balance": ["balance", "running balance"],
+    "debit": ["debit", "money out", "withdrawal", "withdrawals", "spent", "payments", "paid out"],
+    "credit": ["credit", "money in", "deposit", "deposits", "received", "receipts", "paid in"],
+    "fee": ["fee", "fees", "charge", "charges", "bank fee"],
+    "balance": ["balance", "running balance", "account balance"],
+    "parent_category": ["parent category", "category group", "primary category"],
+    "account": ["account", "account number", "account id"],
+    "source_reference": ["transaction id", "transaction reference", "bank reference"],
     "currency": ["currency", "ccy"], "category": ["category"],
-    "transaction_type": ["type", "transaction type", "direction"],
+    "transaction_type": ["type", "transaction type"],
 }
 
 
@@ -37,6 +43,10 @@ def detect_mapping(headers):
         result[field] = {"column": hits[0] if len(hits) == 1 else None,
                          "confidence": "high" if len(hits) == 1 else "ambiguous" if hits else "unmapped",
                          "candidates": hits}
+    # A lone transaction date is also the booking date; never map a column twice.
+    if not result["date"]["candidates"] and result["transaction_datetime"]["column"] is not None:
+        result["date"] = result["transaction_datetime"]
+        result["transaction_datetime"] = {"column": None, "confidence": "unmapped", "candidates": []}
     return result
 
 

@@ -16,6 +16,12 @@ class Mapping(BaseModel):
     category: int | None = None
     balance: int | None = None
     transaction_type: int | None = None
+    transaction_datetime: int | None = None
+    original_description: int | None = None
+    parent_category: int | None = None
+    account: int | None = None
+    fee: int | None = None
+    source_reference: int | None = None
 
 
 class ReviewRequest(BaseModel):
@@ -30,6 +36,7 @@ class ReviewRequest(BaseModel):
     sign_convention: Literal["negative_expense", "positive_expense"]
     type_overrides: dict[int, Literal["income", "expense", "transfer"]] = Field(default_factory=dict)
     excluded_rows: list[int] = Field(default_factory=list, max_length=5000)
+    amount_model: Literal["auto", "signed", "debit_credit", "money_columns"] = "auto"
 
 
 class NormalizedRow(BaseModel):
@@ -45,6 +52,16 @@ class NormalizedRow(BaseModel):
     source_file: str
     import_batch_id: UUID
     confidence: Literal["review_required"] = "review_required"
+    booking_date: datetime | None = None
+    transaction_datetime: datetime | None = None
+    original_description: str | None = None
+    signed_amount: Decimal | None = None
+    direction: Literal["CREDIT", "DEBIT"] | None = None
+    fee_amount: Decimal | None = None
+    source_parent_category: str | None = None
+    source_category: str | None = None
+    source_reference: str | None = None
+    occurrence: int = 1
 
 
 class RowResult(BaseModel):
@@ -69,6 +86,24 @@ class ReviewResponse(BaseModel):
     currency: str
     rows: list[RowResult]
     warning: str
+    reconciliation: "Reconciliation" = Field(default_factory=lambda: Reconciliation())
+    amount_model: str = "SIGNED AMOUNT"
+    account_count: int = 0
+    date_start: str | None = None
+    date_end: str | None = None
+
+
+class Reconciliation(BaseModel):
+    status: Literal["RECONCILED", "PARTIAL", "UNAVAILABLE", "FAILED"] = "UNAVAILABLE"
+    rows_tested: int = 0
+    rows_matched: int = 0
+    rows_failed: int = 0
+    maximum_difference: Decimal = Decimal("0.00")
+    confidence: Literal["high", "medium", "low", "unavailable"] = "unavailable"
+    failed_rows: list[int] = Field(default_factory=list)
+    skipped_rows: list[int] = Field(default_factory=list)
+    probable_sign_error: bool = False
+    order: Literal["ascending", "descending", "unknown"] = "unknown"
 
 
 class ConfirmRequest(BaseModel):
@@ -101,6 +136,8 @@ class DetectionResponse(BaseModel):
     mapping: dict[str, ColumnSuggestion]
     preview: list[list[str]]
     row_count: int
+    defaults: dict[str, str] = Field(default_factory=dict)
+    high_confidence: bool = False
 
 
 class SessionResponse(BaseModel):
